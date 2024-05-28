@@ -58,15 +58,17 @@ export default function Navbar() {
             {user ? (
               <li className="list-inline-item mb-0 ms-1">
                 <div className="dropdown dropdown-primary">
-                  <button
+                  <a
                     type="text"
-                    className="btn btn-pills btn-soft-primary dropdown-toggle p-0"
+                    className=""
+                    href=""
+                    style={{ color: "white" }}
                     data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    {user}
-                  </button>
+                    Welcome, {user}
+                  </a>
                   <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
                     <a
                       className="dropdown-item text-dark"

@@ -66,7 +66,10 @@ export default function Login() {
                     <div className="row">
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label className="form-label">
+                          <label
+                            className="form-label"
+                            style={{ textAlign: "start", display: "block" }}
+                          >
                             Your Email <span className="text-danger">*</span>
                           </label>
                           <input
@@ -83,7 +86,10 @@ export default function Login() {
 
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label className="form-label">
+                          <label
+                            className="form-label"
+                            style={{ textAlign: "start", display: "block" }}
+                          >
                             Password <span className="text-danger">*</span>
                           </label>
                           <input
