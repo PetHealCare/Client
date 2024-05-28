@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Carousel() {
   return (
@@ -23,12 +24,9 @@ export default function Carousel() {
                 </p>
 
                 <div className="mt-4 pt-2">
-                  <a
-                    href="booking-appointment.html"
-                    className="btn btn-primary"
-                  >
+                  <Link to="/booking" className="btn btn-primary">
                     Make Appointment
-                  </a>
+                  </Link>
                   <p className="text-white-50 mb-0 mt-2">
                     T&C apply. Please read{" "}
                     <a href="#" className="text-white-50">
