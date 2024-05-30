@@ -6,6 +6,9 @@ import { AuthProvider } from "./Components/Login/Authen";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignUp from "./Components/Login/SignUp";
 import Booking from "./HomePage/Booking/Booking";
+import Service from "./HomePage/Service/Service";
+import Blog from "./HomePage/Blog/Blog";
+import About from "./HomePage/About/About";
 
 function App() {
   return (
@@ -17,6 +20,9 @@ function App() {
             <Route exact path="/signin" element={<Login />} />
             <Route exact path="/signup" element={<SignUp />} />
             <Route exact path="/booking" element={<Booking />} />
+            <Route exact path="/service" element={<Service />} />
+            <Route exact path="/blog" element={<Blog />} />
+            <Route exact path="/about" element={<About />} />
           </Routes>
         </Router>
       </AuthProvider>

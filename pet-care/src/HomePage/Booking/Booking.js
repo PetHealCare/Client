@@ -103,19 +103,19 @@ export default function Booking() {
                 className="has-submenu parent-parent-menu-item"
                 style={{ color: "blue" }}
               >
-                <a>Home</a>
+                <Link to="/">Home</Link>
               </li>
               <li className="breadcrumb-item">
-                <a href="">Services</a>
+                <Link to="/service">Services</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">Book Apointment</a>
+                <Link to="/booking">Book Apointment</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">Blog</a>
+                <Link to="/blog">Blog</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">About</a>
+                <Link to="/about">About</Link>
               </li>
             </ul>
           </div>
@@ -139,7 +139,7 @@ export default function Booking() {
                 <nav aria-label="breadcrumb" class="d-inline-block mt-3">
                   <ul class="breadcrumb bg-transparent mb-0 py-1">
                     <li class="breadcrumb-item">
-                      <a href="index.html">Doctris</a>
+                      <Link to="/">PetHealthCare</Link>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
                       Appointment

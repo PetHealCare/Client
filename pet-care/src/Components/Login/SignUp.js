@@ -48,9 +48,9 @@ export default function SignUp() {
       <ToastContainer />
       <body>
         <div className="back-to-home rounded d-none d-sm-block">
-          <a href="index.html" className="btn btn-icon btn-primary">
+          <Link to="/" className="btn btn-icon btn-primary">
             <i data-feather="home" className="icons"></i>
-          </a>
+          </Link>
         </div>
 
         {/* <!-- Hero Start --> */}

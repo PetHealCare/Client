@@ -11,7 +11,7 @@ export default function Navbar() {
       <header id="topnav" className="navigation sticky">
         <div className="container">
           <div>
-            <a className="logo" href="index.html">
+            <Link className="logo" to="/">
               <span
                 className="logo-light-mode"
                 style={{ marginRight: "130px" }}
@@ -35,7 +35,7 @@ export default function Navbar() {
                 className="logo-dark-mode"
                 alt=""
               />
-            </a>
+            </Link>
           </div>
 
           {/* <div className="menu-extras">
@@ -99,19 +99,19 @@ export default function Navbar() {
           <div id="navigation">
             <ul className="navigation-menu nav-left nav-light">
               <li className="has-submenu parent-parent-menu-item">
-                <a href="index.html">Home</a>
+                <Link to="/">Home</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">Services</a>
+                <Link to="/service">Services</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">Book Apointment</a>
+                <Link to="/booking">Book Apointment</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">Blog</a>
+                <Link to="/blog">Blog</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <a href="">About</a>
+                <Link to="/about">About</Link>
               </li>
             </ul>
           </div>
