@@ -26,7 +26,7 @@ export default function Login() {
     if (response.ok) {
       const data = await response.json();
       console.log("Login successful", data);
-      setUser(data.fullName);
+      setUser(data.result);
       // handle successful login (e.g., redirect to dashboard)
       navigate("/");
     } else {
