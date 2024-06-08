@@ -14,7 +14,8 @@ import ProfileCustomer from "./Customer/Profile/ProfileCust";
 import ManageDoctor from "./Admin/ManageDoctor/ManageDoctor";
 import ManageAppointment from "./Admin/ManageAppointment/ManageAppointment";
 import CreateSlotBooking from "./Admin/ManageAppointment/CreateSlotBooking";
-import RegisterPet from "./HomePage/Booking/Booking";
+import AddDoctor from "./Admin/ManageDoctor/AddDoctor";
+import RegisterPet from "./Customer/Profile/RegisterPet";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route exact path="/manage-appoinment" element={<ManageAppointment />} />
             <Route exact path="/create-slot-booking" element={<CreateSlotBooking />} />
             <Route exact path="/register-pet" element={<RegisterPet/>}/>
+            <Route exact path="/add-doctor" element={<AddDoctor/>}/>
             
           </Routes>
         </Router>

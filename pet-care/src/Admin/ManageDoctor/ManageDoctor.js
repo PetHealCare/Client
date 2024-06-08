@@ -1,36 +1,34 @@
 import React from "react";
+import Sidebar from "../../Components/Sidebar/Sidebar";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function ManageDoctor() {
+    const [doctors, setDoctors] = useState([]);
+    const [selectedDate, setSelectedDate] = useState("Today");
+
+    useEffect(() => {
+        fetchDoctors();
+    }, []);
+
+    const fetchDoctors = async() => {
+        try{
+            const response = await fetch("https://localhost:7083/api/doctor");
+            const data = await response.json();
+            setDoctors(data.data.items);
+        }catch(error){
+            console.log("Error fetching appointments: ", error)
+        }
+    }
+
+    const handleDateChange = (event) => {
+        setSelectedDate(event.target.value);
+    };
+
     return (
         <div className="page-wrapper doctris-theme toggled">
             {/* Sidebar */}
-            <nav id="sidebar" className="sidebar-wrapper">
-                <div className="sidebar-content" data-simplebar style={{ height: "calc(100% - 60px)" }}>
-                    <div className="sidebar-brand">
-                        <a href="index.html">
-                            <img src="../assets/images/logo-dark.png" height="22" className="logo-light-mode" alt=""/>
-                            <img src="../assets/images/logo-light.png" height="22" className="logo-dark-mode" alt=""/>
-                            <span className="sidebar-colored">
-                                <img src="../assets/images/logo-light.png" height="22" alt=""/>
-                            </span>
-                        </a>
-                    </div>
-                    <ul className="sidebar-menu">
-                        <li><a href="index.html"><i className="uil uil-dashboard me-2 d-inline-block"></i>Dashboard</a></li>
-                        <li><a href="appointment.html"><i className="uil uil-stethoscope me-2 d-inline-block"></i>Appointment</a></li>
-                        <li><a href="manage-doctor.html"><i className="uil uil-user me-2 d-inline-block"></i>Manage Doctor</a></li>
-                        <li><a href="manage-pet.html"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</a></li>
-                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li>
-                    </ul>
-                </div>
-                <ul className="sidebar-footer list-unstyled mb-0">
-                    <li className="list-inline-item mb-0 ms-1">
-                        <a href="#" className="btn btn-icon btn-pills btn-soft-primary">
-                            <i className="uil uil-comment"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+            <Sidebar/>
 
             {/* Main Content */}
             <div className="page-content bg-light" style={{marginTop: "10px"}}>
@@ -93,37 +91,51 @@ export default function ManageDoctor() {
                             </nav>
                         </div>
                         <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-                            <a href="add-doctor.html" className="btn btn-primary">Add New Doctor</a>
+                            <Link to="/add-doctor" className="btn btn-primary">Add New Doctor</Link>
                         </div>
                     </div>
-                    <div className="row row-cols-md-2 row-cols-lg-5">
-                        {/* Doctor Cards */}
-                        {[
-                            { name: "Calvin Carlo", speciality: "Eye Care", image: "01.jpg" },
-                            { name: "Cristino Murphy", speciality: "Gynecology", image: "02.jpg" },
-                            { name: "Alia Reddy", speciality: "Psychotherapy", image: "03.jpg" },
-                            { name: "Toni Kovar", speciality: "Orthopedic", image: "04.jpg" },
-                            { name: "Jessica McFarlane", speciality: "Dentist", image: "05.jpg" },
-                            { name: "Elsie Sherman", speciality: "Gastrologist", image: "06.jpg" },
-                            { name: "Bertha Magers", speciality: "Urologist", image: "07.jpg" },
-                            { name: "Louis Batey", speciality: "Neurologist", image: "08.jpg" },
-                            { name: "Julie Rosario", speciality: "Psychotherapy", image: "09.jpg" },
-                            { name: "Scott Guzman", speciality: "Nutritionists", image: "10.jpg" },
-                        ].map((doctor, index) => (
-                            <div className="col mt-4" key={index}>
-                                <div className="card team border-0 rounded shadow overflow-hidden">
-                                    <div className="team-img position-relative">
-                                        <img src={`../assets/images/doctors/${doctor.image}`} className="img-fluid" alt=""/>
-    
-                                    </div>
-                                    <div className="card-body content text-center">
-                                        <a href="doctor-profile.html" className="title text-dark h5 d-block mb-0">{doctor.name}</a>
-                                        <small className="text-muted speciality">{doctor.speciality}</small>
-                                    </div>
+                    <div className="row">
+                            <div className="col-12 mt-4">
+                                <div className="table-responsive bg-white shadow rounded">
+                                    <table className="table mb-0 table-center">
+                                        <thead>
+                                            <tr>
+                                                <th className="border-bottom p-3" style={{minWidth: "50px"}}>#</th>
+                                                <th className="border-bottom p-3" style={{minWidth: "180px"}}>Name</th>
+                                                <th className="border-bottom p-3" style={{minWidth: "150px"}}>Phone</th>
+                                                <th className="border-bottom p-3" style={{minWidth: "150px"}}>Email</th>
+                                                <th className="border-bottom p-3" style={{minWidth: "220px"}}>Speciality</th>
+                                                <th className="border-bottom p-3" style={{minWidth: "150px"}}></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {doctors.map((doctor, index) => (
+        <tr key={index}>
+            <th className="p-3">{index + 1}</th>
+            <td className="p-3">
+                <a href="#" className="text-dark">
+                    <div className="d-flex align-items-center">
+                        <img src="../assets/images/doctors/02.jpg" className="avatar avatar-md-sm rounded-circle shadow" alt=""/>
+                        <span className="ms-2">{doctor.fullName}</span>
+                    </div>
+                </a>
+            </td>
+            <td className="p-3">{doctor.phoneNumber}</td>
+            <td className="p-3">{doctor.email}</td>
+            <td className="p-3">{doctor.speciality}</td>
+            <td className="text-end p-3">
+            <Link to="/create-slot-booking" className="btn btn-icon btn-pills btn-soft-primary"><i className="uil uil-eye"></i></Link>
+                                                    
+                                                        <a href="#" className="btn btn-icon btn-pills btn-soft-danger" data-bs-toggle="modal" data-bs-target="#deleteDoctor"><i className="uil uil-times-circle"></i></a>
+                                                    </td>
+        </tr>
+    ))}
+
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
                 </div>
             </div>
  {/* Footer Start */}

@@ -146,7 +146,7 @@ export default function Login() {
                       {error && (
                         <div className="col-lg-12">
                           <div className="alert alert-danger" role="alert">
-                            {error}
+                            {"Please input again"}
                           </div>
                         </div>
                       )}
