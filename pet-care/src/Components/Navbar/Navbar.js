@@ -70,18 +70,18 @@ export default function Navbar() {
                     Welcome, {user.fullName}
                   </a>
                   <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
-                    <a
+                    {/* <a
                       className="dropdown-item text-dark"
                       href="doctor-dashboard.html"
                     >
                       Dashboard
-                    </a>
-                    <a
+                    </a> */}
+                    <Link
                       className="dropdown-item text-dark"
-                      href="doctor-profile-setting.html"
+                      to="/profile-customer"
                     >
                       Profile Settings
-                    </a>
+                    </Link>
                     <div className="dropdown-divider border-top"></div>
                     <Link className="dropdown-item text-dark" to="/signin">
                       Logout

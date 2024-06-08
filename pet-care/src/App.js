@@ -13,6 +13,8 @@ import Profile from "./Doctor/Profile/ProfileDoctor";
 import ProfileCustomer from "./Customer/Profile/ProfileCust";
 import ManageDoctor from "./Admin/ManageDoctor/ManageDoctor";
 import ManageAppointment from "./Admin/ManageAppointment/ManageAppointment";
+import CreateSlotBooking from "./Admin/ManageAppointment/CreateSlotBooking";
+import RegisterPet from "./HomePage/Booking/Booking";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
             <Route exact path="/profile-customer" element={<ProfileCustomer />} />
             <Route exact path="/manage-doctor" element={<ManageDoctor />} />
             <Route exact path="/manage-appoinment" element={<ManageAppointment />} />
+            <Route exact path="/create-slot-booking" element={<CreateSlotBooking />} />
+            <Route exact path="/register-pet" element={<RegisterPet/>}/>
             
           </Routes>
         </Router>
