@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { toast, ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./Authen";
 import { Link } from "react-router-dom";
 
@@ -9,29 +7,48 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loginType, setLoginType] = useState("customer"); 
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const response = await fetch("https://localhost:7083/api/Customer/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, remember }),
-    });
+    const url =
+      loginType === "customer"
+        ? `https://localhost:7083/api/Customer/login`
+        : `https://localhost:7083/api/Staffs/login`;
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Login successful", data);
-      setUser(data.result);
-      // handle successful login (e.g., redirect to dashboard)
-      navigate("/");
-    } else {
-      console.error("Login failed");
-      // handle login failure (e.g., show error message)
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, remember }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+        if(loginType === "staff"){
+          navigate("/manage-appoinment");
+        }else{
+          navigate("/");
+        }
+        
+      } else {
+        const errorMessage = await response.text();
+        setError(errorMessage || "Login failed");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,33 +60,36 @@ export default function Login() {
         </Link>
       </div>
 
-      {/* <!-- Hero Start --> */}
       <section
         className="bg-home d-flex bg-light align-items-center"
-        style={{
-          background: "url('../assets/images/bg/bg-lines-one.png') center",
-        }}
+        style={{ background: "url('../assets/images/bg/bg-lines-one.png') center" }}
       >
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-5 col-md-8">
-              <img
-                src="../assets/images/logo-dark.png"
-                height="22"
-                className="mx-auto d-block"
-                alt=""
-              />
+              <img src="../assets/images/logo-dark.png" height="22" className="mx-auto d-block" alt="" />
               <div className="card login-page shadow mt-4 rounded border-0">
                 <div className="card-body">
                   <h4 className="text-center">Sign In</h4>
+                  <div className="d-flex justify-content-center mb-4">
+                    <button
+                      className={`btn btn-sm ${loginType === "customer" ? "btn-primary" : "btn-outline-primary"}`}
+                      onClick={() => setLoginType("customer")}
+                    >
+                      Customer
+                    </button>
+                    <button
+                      className={`btn btn-sm ms-2 ${loginType === "staff" ? "btn-primary" : "btn-outline-primary"}`}
+                      onClick={() => setLoginType("staff")}
+                    >
+                      Staff
+                    </button>
+                  </div>
                   <form onSubmit={handleSubmit} className="login-form mt-4">
                     <div className="row">
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label
-                            className="form-label"
-                            style={{ textAlign: "start", display: "block" }}
-                          >
+                          <label className="form-label" style={{ textAlign: "start", display: "block" }}>
                             Your Email <span className="text-danger">*</span>
                           </label>
                           <input
@@ -86,10 +106,7 @@ export default function Login() {
 
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label
-                            className="form-label"
-                            style={{ textAlign: "start", display: "block" }}
-                          >
+                          <label className="form-label" style={{ textAlign: "start", display: "block" }}>
                             Password <span className="text-danger">*</span>
                           </label>
                           <input
@@ -115,35 +132,36 @@ export default function Login() {
                                 id="remember-check"
                                 onChange={(e) => setRemember(e.target.checked)}
                               />
-                              <label
-                                className="form-check-label"
-                                htmlFor="remember-check"
-                              >
+                              <label className="form-check-label" htmlFor="remember-check">
                                 Remember me
                               </label>
                             </div>
                           </div>
-                          <a
-                            href="forgot-password.html"
-                            className="text-dark h6 mb-0"
-                          >
+                          <a href="forgot-password.html" className="text-dark h6 mb-0">
                             Forgot password ?
                           </a>
                         </div>
                       </div>
+
+                      {error && (
+                        <div className="col-lg-12">
+                          <div className="alert alert-danger" role="alert">
+                            {error}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="col-lg-12 mb-0">
                         <div className="d-grid">
-                          <button className="btn btn-primary" type="submit">
-                            Sign in
+                          <button className="btn btn-primary" type="submit" disabled={loading}>
+                            {loading ? "Signing in..." : "Sign in"}
                           </button>
                         </div>
                       </div>
 
                       <div className="col-12 text-center">
                         <p className="mb-0 mt-3">
-                          <small className="text-dark me-2">
-                            Don't have an account ?
-                          </small>{" "}
+                          <small className="text-dark me-2">Don't have an account ?</small>
                           <Link to="/signup" className="text-dark fw-bold">
                             Sign Up
                           </Link>
@@ -157,7 +175,6 @@ export default function Login() {
           </div>
         </div>
       </section>
-      {/* <!-- Hero End --> */}
     </div>
   );
 }
