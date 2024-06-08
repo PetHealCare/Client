@@ -1,75 +1,72 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../Components/Login/Authen";
-import Footer from "../../Components/Footer/Footer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from "../../Components/Login/Authen";
+import Footer from "../../Components/Footer/Footer";
 
-export default function Booking() {
+export default function RegisterPet() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [userPets, setUserPets] = useState([]);
-  const [selectedPetId, setSelectedPetId] = useState("");
-  const [date, setDate] = useState("");
-  const [note, setNote] = useState("");
+  const [name, setName] = useState("");
+  const [species, setSpecies] = useState("");
+  const [speciesOptions, setSpeciesOptions] = useState([]);
 
   useEffect(() => {
-    if (user) {
-      fetchUserPets();
-    } else {
+    if (!user) {
       navigate('/signin'); // Redirect to login if user is not authenticated
+    } else {
+      fetchSpeciesOptions();
     }
   }, [user, navigate]);
 
-  const fetchUserPets = async () => {
-    try {
-      const response = await fetch(`https://localhost:7083/api/pet?CustomerId=${user.customerId}`);
-      const data = await response.json();
-      setUserPets(data.data.items || []);
-    } catch (error) {
-      console.error("Error fetching user pets:", error);
-      toast.error("Error fetching user pets");
-    }
+  const fetchSpeciesOptions = async () => {
+    // Replace this with your API call if species options are fetched from an API
+    const options = [
+      { value: 'dog', label: 'Dog' },
+      { value: 'cat', label: 'Cat' },
+      { value: 'bird', label: 'Bird' },
+      // Add more species options as needed
+    ];
+    setSpeciesOptions(options);
   };
 
-  const handleAppointmentSubmit = async (e) => {
+  const handlePetRegistration = async (e) => {
     e.preventDefault();
-    if (userPets.length === 0) {    
-      setTimeout(() => navigate("/register-pet"), 1000);
-    }
-    if (!selectedPetId) {
-      toast.error("Currently, you haven't information of Pet. Please, register!");
+
+    if (!name || !species) {
+      toast.error("Please provide both name and species");
       return;
     }
 
     try {
-      const formData = {
-        petId: parseInt(selectedPetId, 10),
+      const petData = {
+        name: name,
+        species: species,
         customerId: user.customerId,
-        bookingDate: new Date(date).toISOString(),
-        note: note
       };
-      console.log("Form Data: ", formData); 
 
-      const response = await fetch("https://localhost:7083/api/Booking/create-booking", {
+      const response = await fetch("https://localhost:7083/api/pet", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(petData)
       });
+      console.log("Petata", petData);
 
       if (response.ok) {
-        console.log("Booking successful!");
-        toast.success('Booking successful!');
+        toast.success('Pet registered successfully!');
+        // navigate("/booking");
+        setTimeout(()=> navigate("/booking"), 1000);
       } else {
         const errorText = await response.text();
-        console.error("Error booking appointment:", response.status, errorText);
-        toast.error('Error booking appointment');
+        console.error("Error registering pet:", response.status, errorText);
+        toast.error('Error registering pet');
       }
     } catch (error) {
-      console.error("Error booking appointment:", error);
-      toast.error('Error booking appointment');
+      console.error("Error registering pet:", error);
+      toast.error('Error registering pet');
     }
   };
 
@@ -130,16 +127,16 @@ export default function Booking() {
           <div className="row mt-5 justify-content-center">
             <div className="col-12">
               <div className="section-title text-center">
-                <h3 className="sub-title mb-4">Book an appointment</h3>
+                <h3 className="sub-title mb-4">Register a Pet</h3>
                 <p className="para-desc mx-auto text-muted">
-                  Great doctor if you need your family member to get effective immediate assistance, emergency treatment or a simple consultation.
+                  Register your pet to access our services.
                 </p>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-3">
                   <ul className="breadcrumb bg-transparent mb-0 py-1">
                     <li className="breadcrumb-item">
                       <Link to="/">PetHealthCare</Link>
                     </li>
-                    <li className="breadcrumb-item active" aria-current="page">Appointment</li>
+                    <li className="breadcrumb-item active" aria-current="page">Register Pet</li>
                   </ul>
                 </nav>
               </div>
@@ -162,42 +159,45 @@ export default function Booking() {
               <div className="card border-0 shadow rounded overflow-hidden">
                 <div className="tab-content p-4" id="pills-tabContent">
                   <div className="tab-pane fade show active" id="pills-clinic" role="tabpanel" aria-labelledby="clinic-booking">
-                    <form onSubmit={handleAppointmentSubmit}>
+                    <form onSubmit={handlePetRegistration}>
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="select-pet">Select Pet</label>
-                            <select className="form-select form-control" id="select-pet" value={selectedPetId} onChange={(e) => setSelectedPetId(e.target.value)}>
-                              <option value="" disabled>Select Pet</option>
-                              {userPets.map((pet) => (
-                                <option key={pet.petId} value={pet.petId}>
-                                  {pet.name} - {pet.species}
+                            <label className="form-label" htmlFor="pet-name">Pet Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="pet-name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="pet-species">Species</label>
+                            <select
+                              className="form-select form-control"
+                              id="pet-species"
+                              value={species}
+                              onChange={(e) => setSpecies(e.target.value)}
+                              required
+                            >
+                              <option value="" disabled>Select Species</option>
+                              {speciesOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
                                 </option>
                               ))}
                             </select>
                           </div>
                         </div>
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label" htmlFor="input-date">Date</label>
-                            <input name="date" type="date" className="form-control" id="input-date" value={date} onChange={(e) => setDate(e.target.value)} />
-                          </div>
-                        </div>
                         <div className="col-lg-12">
-                          <div className="mb-3">
-                            <label className="form-label" htmlFor="note">Note</label>
-                            <textarea name="note" id="note" rows="4" className="form-control" placeholder="Your Note :" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
+                          <div className="d-grid" style={{justifyContent: "end"}}>
+                            <button type="submit" className="btn btn-primary">Register Pet</button>
                           </div>
                         </div>
-                        <div className="col-lg-12">
-                          <div className="d-grid">
-                            <button type="submit" className="btn btn-primary">Book An Appointment</button>
-                          </div>
-                        </div>
-                        <div className="col-lg-12 mt-2">
-                    <small className="text-dark me-2">Do you need to register information for a new pet?</small>
-                    <Link to="/register-pet" className="text-dark fw-bold">Register New Pet</Link>
-                  </div>
                       </div>
                     </form>
                   </div>
