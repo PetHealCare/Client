@@ -28,7 +28,7 @@ export default function Booking() {
       setUserPets(data.data.items || []);
     } catch (error) {
       console.error("Error fetching user pets:", error);
-      toast.error("Error fetching user pets");
+      // toast.error("Error fetching user pets");
     }
   };
 
@@ -92,10 +92,16 @@ export default function Booking() {
                     Welcome, {user.fullName}
                   </button>
                   <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
-                    <Link className="dropdown-item text-dark" to="/dashboard">Dashboard</Link>
-                    <Link className="dropdown-item text-dark" to="/profile-settings">Profile Settings</Link>
+                  <Link
+                      className="dropdown-item text-dark"
+                      to="/profile-customer"
+                    >
+                      Profile Settings
+                    </Link>
                     <div className="dropdown-divider border-top"></div>
-                    <Link className="dropdown-item text-dark" to="/signin">Logout</Link>
+                    <Link className="dropdown-item text-dark" to="/signin">
+                      Logout
+                    </Link>
                   </div>
                 </div>
               </li>
