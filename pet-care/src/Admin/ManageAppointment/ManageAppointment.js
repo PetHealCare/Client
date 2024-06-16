@@ -56,8 +56,8 @@ return(
                         <li><a href="index.html"><i className="uil uil-dashboard me-2 d-inline-block"></i>Dashboard</a></li>
                         <li><Link to="/manage-appoinment"><i className="uil uil-stethoscope me-2 d-inline-block"></i>Appointment</Link></li>
                         <li><Link to="/manage-doctor"><i className="uil uil-user me-2 d-inline-block"></i>Manage Doctor</Link></li>
-                        <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
-                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li>
+                        {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
+                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
                     </ul>
                 </div>
                 <ul className="sidebar-footer list-unstyled mb-0">

@@ -136,7 +136,7 @@ export default function AddDoctor() {
                             </nav>
                         </div>
                         <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-                        <input type="submit" id="submit" name="send" className="btn btn-primary" value="Save changes" />
+                        <input type="submit" id="submit" name="send" className="btn btn-primary" value="Add New Doctor" />
                         </div>
                         <h2>Add New Doctor</h2>
                         <div className="d-flex justify-content-center align-items-center" style={{ height: "40vh" }}>

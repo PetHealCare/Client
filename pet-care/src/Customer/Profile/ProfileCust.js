@@ -46,9 +46,9 @@ const Profile = () => {
           if (response.ok) {
               console.log("Profile updated successfully!");
               toast.success("Profile updated successfully!")
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
+              // setTimeout(() => {
+              //   window.location.reload();
+              // }, 1000);
           } else {
               console.error("Error updating profile:", response.status);
               toast.error("Error updating profile. Please try again later.");
