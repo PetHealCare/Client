@@ -4,6 +4,7 @@ import { useAuth } from "../../Components/Login/Authen";
 import Footer from "../../Components/Footer/Footer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select';
 
 export default function Booking() {
   const { user } = useAuth();
@@ -12,17 +13,77 @@ export default function Booking() {
   const [selectedPetId, setSelectedPetId] = useState("");
   const [date, setDate] = useState("");
   const [note, setNote] = useState("");
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState("");
+  const [services, setServices] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [availableSchedules, setAvailableSchedules] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
 
   useEffect(() => {
     if (user) {
       fetchUserPets();
+      fetchDoctors();
+      fetchServices();
     } else {
       navigate('/signin'); // Redirect to login if user is not authenticated
     }
   }, [user, navigate]);
 
+  const fetchAvailableSchedules = async (doctorId, selectedDate) => {
+    try {
+      const response = await fetch(`https://localhost:7083/api/Schedules?DoctorId=${doctorId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      // Filter schedules by selected date and doctorId
+      const filteredSchedules = data.filter(schedule => {
+        // Assuming schedule.startTime is in ISO string format
+        const scheduleDate = new Date(schedule.startTime).toISOString().split('T')[0]; // Extract date part in ISO format
+        const selectedDateString = new Date(selectedDate).toISOString().split('T')[0]; // Convert selectedDate to ISO format
+  
+        return scheduleDate === selectedDateString && schedule.status === true;
+      });
+  
+      setAvailableSchedules(filteredSchedules);
+  
+      if (filteredSchedules.length === 0) {
+        setSelectedSchedule(""); // Clear selected schedule if no schedules available
+      } else {
+        setSelectedSchedule(filteredSchedules[0].scheduleId); // Set default to first available schedule
+      }
+    } catch (error) {
+      console.error("Error fetching schedules:", error);
+      toast.error("Error fetching schedules");
+    }
+  };
+  const fetchServices = async () => {
+    try {
+      const response = await fetch("https://localhost:7083/api/Service");
+      const data = await response.json();
+      setServices(data || []);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      toast.error("Error fetching services");
+    }
+  };
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch("https://localhost:7083/api/doctor");
+      const data = await response.json();
+      setDoctors(data.data.items || []);
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+      toast.error("Error fetching doctors");
+    }
+  };
+
   const fetchUserPets = async () => {
     try {
+      console.log("userId", user.customerId);
       const response = await fetch(`https://localhost:7083/api/pet?CustomerId=${user.customerId}`);
       const data = await response.json();
       setUserPets(data.data.items || []);
@@ -46,12 +107,14 @@ export default function Booking() {
       const formData = {
         petId: parseInt(selectedPetId, 10),
         customerId: user.customerId,
-        bookingDate: new Date(date).toISOString(),
-        note: note
+        doctorId: parseInt(selectedDoctorId, 10),
+        serviceIds: selectedServices.map(serviceId => parseInt(serviceId, 10)),
+        note: note,
+        scheduleId: parseInt(selectedSchedule, 10),
       };
       console.log("Form Data: ", formData); 
 
-      const response = await fetch("https://localhost:7083/api/Booking/create-booking", {
+      const response = await fetch("https://localhost:7083/api/Booking/create-booking-service", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -70,6 +133,22 @@ export default function Booking() {
     } catch (error) {
       console.error("Error booking appointment:", error);
       toast.error('Error booking appointment');
+    }
+  };
+
+  const handleServiceChange = (selectedOptions) => {
+    if (selectedOptions.length > 5) {
+      toast.error("You can only select up to 5 services.");
+      return;
+    }
+    setSelectedServices(selectedOptions.map(option => option.value));
+  };
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    setDate(selectedDate);
+    if(selectedDoctorId){
+      fetchAvailableSchedules(selectedDoctorId, selectedDate);
     }
   };
 
@@ -185,11 +264,49 @@ export default function Booking() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="input-date">Date</label>
-                            <input name="date" type="date" className="form-control" id="input-date" value={date} onChange={(e) => setDate(e.target.value)} />
+                            <label className="form-label" htmlFor="select-doctor">Select Doctor</label>
+                            <select className="form-select form-control" id="select-doctor" value={selectedDoctorId} onChange={(e) => setSelectedDoctorId(e.target.value)}>
+                              <option value="" disabled>Select Doctor</option>
+                              {doctors.map((doctor) => (
+                                <option key={doctor.doctorId} value={doctor.doctorId}>
+                                  {doctor.fullName} - {doctor.speciality}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
-                        <div className="col-lg-12">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="input-date">Date</label>
+                            <input name="date" type="date" className="form-control" id="input-date" value={date} onChange={handleDateChange} />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+  <div className="mb-3">
+    <label className="form-label">Available Schedule</label>
+    <select className="form-select form-control" value={selectedSchedule} onChange={(e) => setSelectedSchedule(e.target.value)}>
+      <option value="" disabled>Select a schedule</option>
+      {availableSchedules.map((schedule) => (
+        <option key={schedule.scheduleId} value={schedule.scheduleId}>
+          {new Date(schedule.startTime).toLocaleTimeString()} - {new Date(schedule.endTime).toLocaleTimeString()}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Select Services (Up to 5)</label>
+                            <Select
+                              options={services.map(service => ({ value: service.serviceId, label: `${service.serviceName} - $${service.price}` }))}
+                              value={selectedServices.map(serviceId => ({ value: serviceId, label: services.find(service => service.serviceId === serviceId)?.serviceName }))}
+                              isMulti
+                              onChange={handleServiceChange}
+                              maxMenuHeight={150} // Set maximum height to limit number of visible options
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
                           <div className="mb-3">
                             <label className="form-label" htmlFor="note">Note</label>
                             <textarea name="note" id="note" rows="4" className="form-control" placeholder="Your Note :" value={note} onChange={(e) => setNote(e.target.value)}></textarea>
@@ -201,9 +318,9 @@ export default function Booking() {
                           </div>
                         </div>
                         <div className="col-lg-12 mt-2">
-                    <small className="text-dark me-2">Do you need to register information for a new pet?</small>
-                    <Link to="/register-pet" className="text-dark fw-bold">Register New Pet</Link>
-                  </div>
+                          <small className="text-dark me-2">Do you need to register information for a new pet?</small>
+                          <Link to="/register-pet" className="text-dark fw-bold">Register New Pet</Link>
+                        </div>
                       </div>
                     </form>
                   </div>
@@ -217,3 +334,4 @@ export default function Booking() {
     </div>
   );
 }
+
