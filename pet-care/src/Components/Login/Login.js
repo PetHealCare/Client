@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./Authen";
 import { Link } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,7 +10,6 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [loginType, setLoginType] = useState("customer"); 
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
@@ -18,13 +18,10 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    const url =
-      loginType === "customer"
-        ? `https://localhost:7083/api/Customer/login`
-        : `https://localhost:7083/api/Staffs/login`;
+    console.log("Attempting login with:", { email, password, remember });
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch('https://localhost:7083/api/Authentication/login', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,20 +29,59 @@ export default function Login() {
         body: JSON.stringify({ email, password, remember }),
       });
 
+      console.log("Response status:", response.status);
+      
+      const responseData = await response.text(); // Get response as text
+      console.log("response", responseData);
+
+      
       if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-        if(loginType === "staff"){
-          navigate("/manage-appoinment");
-        }else{
+        const token = responseData;
+        localStorage.setItem('authToken', token); // Store the token
+
+        const decodedToken = jwtDecode(token); // Decode the token to get user info
+        console.log("Decoded Token:", decodedToken); // Log the decoded token
+        setUser(decodedToken);
+
+        let userDetails;
+
+       if (decodedToken.Role === "Staff") {
+          userDetails = await fetch(`https://localhost:7083/api/Staffs/user/${decodedToken.UserId}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }).then(res => res.json());
+          console.log("userDetails: ", userDetails);
+        } 
+        if (decodedToken.Role === "Customer") {
+          userDetails = await fetch(`https://localhost:7083/api/Customer/user/${decodedToken.UserId}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }).then(res => res.json());
+        }else {
+          userDetails = await fetch(`https://localhost:7083/api/doctor/${decodedToken.UserId}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          }).then(res => res.json());
+        }
+
+        console.log("User details:", userDetails);
+        setUser(userDetails); // Update user state with fetched details
+
+        if (decodedToken.role === "Staff") {
+          navigate("/manage-appointment");
+        } else {
           navigate("/");
         }
-        
+      } else if (response.status === 401) {
+        setError("Invalid email or password");
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage || "Login failed");
+        setError(responseData || "Login failed");
       }
     } catch (error) {
+      console.error("Error during login:", error);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -71,20 +107,6 @@ export default function Login() {
               <div className="card login-page shadow mt-4 rounded border-0">
                 <div className="card-body">
                   <h4 className="text-center">Sign In</h4>
-                  <div className="d-flex justify-content-center mb-4">
-                    <button
-                      className={`btn btn-sm ${loginType === "customer" ? "btn-primary" : "btn-outline-primary"}`}
-                      onClick={() => setLoginType("customer")}
-                    >
-                      Customer
-                    </button>
-                    <button
-                      className={`btn btn-sm ms-2 ${loginType === "staff" ? "btn-primary" : "btn-outline-primary"}`}
-                      onClick={() => setLoginType("staff")}
-                    >
-                      Staff
-                    </button>
-                  </div>
                   <form onSubmit={handleSubmit} className="login-form mt-4">
                     <div className="row">
                       <div className="col-lg-12">
@@ -146,7 +168,7 @@ export default function Login() {
                       {error && (
                         <div className="col-lg-12">
                           <div className="alert alert-danger" role="alert">
-                            {"Please input again"}
+                            {error}
                           </div>
                         </div>
                       )}

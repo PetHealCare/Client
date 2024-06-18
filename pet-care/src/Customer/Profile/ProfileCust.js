@@ -46,9 +46,9 @@ const Profile = () => {
           if (response.ok) {
               console.log("Profile updated successfully!");
               toast.success("Profile updated successfully!")
-              // setTimeout(() => {
-              //   window.location.reload();
-              // }, 1000);
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
           } else {
               console.error("Error updating profile:", response.status);
               toast.error("Error updating profile. Please try again later.");
@@ -164,12 +164,6 @@ const Profile = () => {
     </div>
 
     <div className="list-unstyled p-4">
-
-        <div className="d-flex align-items-center mt-2">
-            <i className="uil uil-envelope align-text-bottom text-primary h5 mb-0 me-2"></i>
-            <h6 className="mb-0">Email</h6>
-            <p className="text-muted mb-0 ms-2">{user.email}</p>
-        </div>
         
         <div className="d-flex align-items-center mt-2">
             <i className="uil uil-book-open align-text-bottom text-primary h5 mb-0 me-2"></i>
