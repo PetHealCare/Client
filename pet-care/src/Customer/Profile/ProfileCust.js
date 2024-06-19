@@ -4,6 +4,7 @@ import { useAuth } from "../../Components/Login/Authen";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CUSTOMER_API } from "../../apiEndpoint";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -35,7 +36,7 @@ const Profile = () => {
       console.log("formdata", formData);
 
       try {
-          const response = await fetch("https://localhost:7083/api/Customer/UpdateProfile", {
+          const response = await fetch(CUSTOMER_API.UPDATE_PROFILE, {
               method: "PUT",
               headers: {
                   "Content-Type": "application/json"

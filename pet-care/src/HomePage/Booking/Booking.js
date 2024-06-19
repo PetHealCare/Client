@@ -5,6 +5,7 @@ import Footer from "../../Components/Footer/Footer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
+import { BOOKING_API, DOCTOR_API, PET_API, SCHEDULE_API, SERVICE_API } from "../../apiEndpoint";
 
 export default function Booking() {
   const { user } = useAuth();
@@ -32,7 +33,7 @@ export default function Booking() {
 
   const fetchAvailableSchedules = async (doctorId, selectedDate) => {
     try {
-      const response = await fetch(`https://localhost:7083/api/Schedules?DoctorId=${doctorId}`);
+      const response = await fetch(`${SCHEDULE_API.MASTER}Schedules?DoctorId=${doctorId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -61,7 +62,7 @@ export default function Booking() {
   };
   const fetchServices = async () => {
     try {
-      const response = await fetch("https://localhost:7083/api/Service");
+      const response = await fetch(SERVICE_API.MASTER);
       const data = await response.json();
       setServices(data || []);
     } catch (error) {
@@ -72,7 +73,7 @@ export default function Booking() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch("https://localhost:7083/api/doctor");
+      const response = await fetch(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items || []);
     } catch (error) {
@@ -84,7 +85,7 @@ export default function Booking() {
   const fetchUserPets = async () => {
     try {
       console.log("userId", user.customerId);
-      const response = await fetch(`https://localhost:7083/api/pet?CustomerId=${user.customerId}`);
+      const response = await fetch(`${PET_API.MASTER}?CustomerId=${user.customerId}`);
       const data = await response.json();
       setUserPets(data.data.items || []);
     } catch (error) {
@@ -114,7 +115,7 @@ export default function Booking() {
       };
       console.log("Form Data: ", formData); 
 
-      const response = await fetch("https://localhost:7083/api/Booking/create-booking-service", {
+      const response = await fetch(BOOKING_API.CREATE_BOOKING_SERVICE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

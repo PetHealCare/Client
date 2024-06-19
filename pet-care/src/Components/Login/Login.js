@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./Authen";
 import { Link } from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
+import { AUTH_API, CUSTOMER_API, STAFF_API, DOCTOR_API } from "../../apiEndpoint";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function Login() {
     console.log("Attempting login with:", { email, password, remember });
 
     try {
-      const response = await fetch('https://localhost:7083/api/Authentication/login', {
+      const response = await fetch(AUTH_API.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +47,7 @@ export default function Login() {
         let userDetails;
 
        if (decodedToken.Role === "Staff") {
-          userDetails = await fetch(`https://localhost:7083/api/Staffs/user/${decodedToken.UserId}`, {
+          userDetails = await fetch(`${STAFF_API.GET_DETAILS}/${decodedToken.UserId}`, {
             headers: {
               "Authorization": `Bearer ${token}`
             }
@@ -54,13 +55,13 @@ export default function Login() {
           console.log("userDetails: ", userDetails);
         } 
         if (decodedToken.Role === "Customer") {
-          userDetails = await fetch(`https://localhost:7083/api/Customer/user/${decodedToken.UserId}`, {
+          userDetails = await fetch(`${CUSTOMER_API.GET_DETAILS}/${decodedToken.UserId}`, {
             headers: {
               "Authorization": `Bearer ${token}`
             }
           }).then(res => res.json());
         }else {
-          userDetails = await fetch(`https://localhost:7083/api/doctor/${decodedToken.UserId}`, {
+          userDetails = await fetch(`${DOCTOR_API.MASTER}/${decodedToken.UserId}`, {
             headers: {
               "Authorization": `Bearer ${token}`
             }
