@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SERVICE_API, SLOT_API } from "../../apiEndpoint";
 
 export default function CreateSlotBooking({ booking }) {
   const [slotBookingInfo, setSlotBookingInfo] = useState({
@@ -17,7 +18,7 @@ export default function CreateSlotBooking({ booking }) {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch("https://localhost:7083/api/Service");
+      const response = await fetch(SERVICE_API.MASTER);
       if (response.ok) {
         const data = await response.json();
         setSẻvices(data);
@@ -39,7 +40,7 @@ export default function CreateSlotBooking({ booking }) {
     event.preventDefault();
     try {
       // Make a POST request to create the slot booking
-      const response = await fetch("https://localhost:7083/api/SlotBookings", {
+      const response = await fetch(SLOT_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

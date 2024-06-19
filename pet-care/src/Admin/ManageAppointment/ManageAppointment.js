@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { BOOKING_API } from "../../apiEndpoint";
 
 export default function ManageAppointment() {
     const [appointments, setAppointments] = useState([]);
@@ -11,7 +12,7 @@ export default function ManageAppointment() {
 
     const fetchAppointments = async() => {
         try{
-            const response = await fetch("https://localhost:7083/api/Booking");
+            const response = await fetch(BOOKING_API.MASTER);
             const data = await response.json();
             setAppointments(data);
             console.log("data", data);

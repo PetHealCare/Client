@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "../../Components/Login/Authen";
 import Footer from "../../Components/Footer/Footer";
+import { PET_API } from "../../apiEndpoint";
 
 export default function RegisterPet() {
   const { user } = useAuth();
@@ -46,7 +47,7 @@ export default function RegisterPet() {
         customerId: user.customerId,
       };
 
-      const response = await fetch("https://localhost:7083/api/pet", {
+      const response = await fetch(PET_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

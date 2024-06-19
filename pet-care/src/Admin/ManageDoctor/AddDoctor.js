@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Link } from "react-router-dom";
+import { DOCTOR_API } from "../../apiEndpoint";
 
 export default function AddDoctor() {
     const [doctors, setDoctors] = useState([]);
@@ -17,7 +18,7 @@ export default function AddDoctor() {
 
     const fetchDoctors = async () => {
         try {
-            const response = await fetch("https://localhost:7083/api/doctor");
+            const response = await fetch(DOCTOR_API.MASTER);
             const data = await response.json();
             setDoctors(data.data.items);
         } catch (error) {
@@ -40,7 +41,7 @@ export default function AddDoctor() {
         };
 
         try {
-            const response = await fetch("https://localhost:7083/api/doctor", {
+            const response = await fetch(DOCTOR_API.MASTER, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

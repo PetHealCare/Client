@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AUTH_API, CUSTOMER_API } from "../../apiEndpoint";
 export default function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export default function SignUp() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://localhost:7083/api/Customer/Register",
+        AUTH_API.SIGN_UP,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
