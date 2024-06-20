@@ -30,7 +30,6 @@ export default function Login() {
           body: JSON.stringify({ email, password, remember }),
         }
       );
-      console.log("env:", process.env.REACT_APP_URL_API);
       console.log("Response status:", response.status);
 
       const responseData = await response.text();
