@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "../../Components/Login/Authen";
 import Footer from "../../Components/Footer/Footer";
-import { PET_API } from "../../apiEndpoint";
+// import { PET_API } from "../../apiEndpoint";
 
 export default function RegisterPet() {
   const { user } = useAuth();
@@ -12,6 +12,10 @@ export default function RegisterPet() {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [speciesOptions, setSpeciesOptions] = useState([]);
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [generic, setGeneric] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -27,6 +31,10 @@ export default function RegisterPet() {
       { value: 'dog', label: 'Dog' },
       { value: 'cat', label: 'Cat' },
       { value: 'bird', label: 'Bird' },
+      { value: 'parrot', label: 'Parrot' },
+      { value: 'rabbit', label: 'Rabbit' },
+      { value: 'hamster', label: 'Hamster' },
+      { value: 'another', label: 'Another' },
       // Add more species options as needed
     ];
     setSpeciesOptions(options);
@@ -34,42 +42,47 @@ export default function RegisterPet() {
 
   const handlePetRegistration = async (e) => {
     e.preventDefault();
-
-    if (!name || !species) {
-      toast.error("Please provide both name and species");
+  
+    if (!name || !species || !age || !gender || !generic || !description) {
+      toast.error("Please fill out all fields");
       return;
     }
-
+  
     try {
       const petData = {
         name: name,
         species: species,
+        status: true,  // Assuming status is always true for new registrations
         customerId: user.customerId,
+        age: parseInt(age),
+        gender: gender === "true", // Convert gender to boolean
+        generic: generic,
+        description: description,
       };
 
-      const response = await fetch(PET_API.MASTER, {
+      const response = await fetch('https://localhost:7083/api/pet', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(petData)
       });
-      console.log("Petata", petData);
-
+  
       if (response.ok) {
         toast.success('Pet registered successfully!');
-        // navigate("/booking");
-        setTimeout(()=> navigate("/booking"), 1000);
+        setTimeout(() => navigate("/booking"), 1000);
       } else {
         const errorText = await response.text();
         console.error("Error registering pet:", response.status, errorText);
-        toast.error('Error registering pet');
+        toast.error('Error registering pet: ' + errorText); // Display error message from backend
       }
     } catch (error) {
       console.error("Error registering pet:", error);
-      toast.error('Error registering pet');
+      toast.error('Error registering pet: ' + error.message); // Display error message
     }
   };
+  
+  
 
   return (
     <div>
@@ -177,6 +190,19 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
+                            <label className="form-label" htmlFor="pet-age">Pet Age</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="pet-age"
+                              value={age}
+                              onChange={(e) => setAge(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
                             <label className="form-label" htmlFor="pet-species">Species</label>
                             <select
                               className="form-select form-control"
@@ -194,8 +220,50 @@ export default function RegisterPet() {
                             </select>
                           </div>
                         </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="pet-gender">Gender</label>
+                            <select
+                              className="form-select"
+                              id="pet-gender"
+                              value={gender}
+                              onChange={(e) => setGender(e.target.value)}
+                              required
+                            >
+                              <option value="">Select Gender</option>
+                              <option value="false">Male</option>
+                              <option value="true">Female</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="pet-generic">Generic</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="pet-generic"
+                              value={generic}
+                              onChange={(e) => setGeneric(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label" htmlFor="pet-description">Description</label>
+                            <textarea
+                              className="form-control"
+                              id="pet-description"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows="3"
+                              required
+                            ></textarea>
+                          </div>
+                        </div>
                         <div className="col-lg-12">
-                          <div className="d-grid" style={{justifyContent: "end"}}>
+                          <div className="d-grid" style={{ justifyContent: "end" }}>
                             <button type="submit" className="btn btn-primary">Register Pet</button>
                           </div>
                         </div>
@@ -212,3 +280,4 @@ export default function RegisterPet() {
     </div>
   );
 }
+

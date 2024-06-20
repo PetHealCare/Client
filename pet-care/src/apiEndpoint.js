@@ -1,11 +1,12 @@
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const {REACT_APP_URL_API} = process.env;
+
+const BASE_URL = process.env.REACT_APP_URL_API;
 
 export const CUSTOMER_API = {
     UPDATE_PROFILE: `${BASE_URL}/Customer/UpdateProfile`,
     SIGN_UP: `${BASE_URL}/Customer/Register`,
     MASTER: `${BASE_URL}/Customer`,
     GET_DETAILS: `${BASE_URL}/user`,
-
 };
 
 export const PET_API = {
@@ -16,12 +17,14 @@ export const AUTH_API = {
     LOGIN: `${BASE_URL}/Authentication/login`,
     SIGN_UP: `${BASE_URL}/Customer/Register`,
 };
+
 export const SCHEDULE_API = {
     MASTER: `${BASE_URL}/Schedules`,
 };
+
 export const BOOKING_API = {
     MASTER: `${BASE_URL}/booking`,
-    CREATE_BOOKING_SERVICE: `${BASE_URL}/Booking/create-booking-service`
+    CREATE_BOOKING_SERVICE: `${BASE_URL}/Booking/create-booking-service`,
 };
 
 export const DOCTOR_API = {

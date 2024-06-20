@@ -82,6 +82,12 @@ export default function Navbar() {
                     >
                       Profile Settings
                     </Link>
+                    <Link
+                      className="dropdown-item text-dark"
+                      to="/customer-pet"
+                    >
+                      Dashboard Manage
+                    </Link>
                     <div className="dropdown-divider border-top"></div>
                     <Link className="dropdown-item text-dark" to="/signin">
                       Logout

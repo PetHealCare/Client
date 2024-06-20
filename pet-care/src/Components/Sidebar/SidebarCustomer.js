@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function Sidebar() {
+export default function SidebarCustomer() {
   return (
     <div>
       {/* Sidebar */}
@@ -32,25 +32,18 @@ export default function Sidebar() {
           </div>
           <ul className="sidebar-menu">
             <li>
-              <a href="index.html">
-                <i className="uil uil-dashboard me-2 d-inline-block"></i>
-                Dashboard
-              </a>
-            </li>
-            <li>
               <Link to="/manage-appointment">
                 <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
-                Manage Appointment
+                Manage Bookings
               </Link>
             </li>
             <li>
-              <Link to="/manage-doctor">
-                <i className="uil uil-user me-2 d-inline-block"></i>Manage
-                Doctor
+              <Link to="/customer-pet">
+                <i className="uil uil-user me-2 d-inline-block"></i>Manage Pets
               </Link>
             </li>
             {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
-                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
+                    <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
           </ul>
         </div>
         <ul className="sidebar-footer list-unstyled mb-0">

@@ -23,7 +23,7 @@ export default function SignUp() {
     e.preventDefault();
     try {
       const response = await fetch(
-        AUTH_API.SIGN_UP,
+        'https://localhost:7083/api/Customer/Register',
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
