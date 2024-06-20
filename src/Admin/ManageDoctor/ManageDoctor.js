@@ -1,34 +1,36 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Link } from "react-router-dom";
-import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
-import { useAuth } from "../../Components/Login/Authen";
+import { useState, useEffect } from "react";
+import { DOCTOR_API } from "../../apiEndpoint";
+// import { DOCTOR_API } from "../../apiEndpoint";
 
-export default function ManagePet() {
-  const { user } = useAuth();
-  const [userPets, setUserPets] = useState([]);
+export default function ManageDoctor() {
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("Today");
 
   useEffect(() => {
-    fetchUserPets();
+    fetchDoctors();
   }, []);
 
-  const fetchUserPets = async () => {
+  const fetchDoctors = async () => {
     try {
-      const response = await fetch(
-        `https://localhost:7083/api/pet?CustomerId=${user.customerId}`
-      );
+      const response = await fetch(DOCTOR_API.MASTER);
       const data = await response.json();
-      setUserPets(data.data.items || []);
+      setDoctors(data.data.items);
     } catch (error) {
-      console.error("Error fetching user pets:", error);
-      // toast.error("Error fetching user pets");
+      console.log("Error fetching doctor: ", error);
     }
+  };
+
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
   };
 
   return (
     <div className="page-wrapper doctris-theme toggled">
       {/* Sidebar */}
-      <SidebarCustomer />
+      <Sidebar />
 
       {/* Main Content */}
       <div className="page-content bg-light" style={{ marginTop: "10px" }}>
@@ -87,61 +89,83 @@ export default function ManagePet() {
               </div>
             </div>
 
-            <ul className="dropdowns list-inline mb-0">
-              {user ? (
-                <li className="list-inline-item mb-0 ms-1">
-                  <div className="dropdown dropdown-primary">
+            <ul className="list-unstyled mb-0">
+              <li className="list-inline-item mb-0 ms-1">
+                <div className="dropdown dropdown-primary">
+                  <button
+                    type="button"
+                    className="btn btn-pills btn-soft-primary dropdown-toggle p-0"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <img
+                      src="../assets/images/doctors/01.jpg"
+                      className="avatar avatar-ex-small rounded-circle"
+                      alt=""
+                    />
+                  </button>
+                  <div
+                    className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3"
+                    style={{ minWidth: "200px" }}
+                  >
                     <a
-                      type="text"
-                      className=""
-                      href=""
-                      style={{ color: "black" }}
-                      data-bs-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
+                      className="dropdown-item d-flex align-items-center text-dark"
+                      href="profile.html"
                     >
-                      Welcome, {user.fullName}
+                      <img
+                        src="../assets/images/doctors/01.jpg"
+                        className="avatar avatar-md-sm rounded-circle border shadow"
+                        alt=""
+                      />
+                      <div className="flex-1 ms-2">
+                        <span className="d-block mb-1">Calvin Carlo</span>
+                        <small className="text-muted">Orthopedic</small>
+                      </div>
                     </a>
-                    <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
-                      <Link
-                        className="dropdown-item text-dark"
-                        to="/profile-customer"
-                      >
-                        Profile Settings
-                      </Link>
-                      <div className="dropdown-divider border-top"></div>
-                      <Link className="dropdown-item text-dark" to="/signin">
-                        Logout
-                      </Link>
-                    </div>
+                    <a
+                      className="dropdown-item text-dark"
+                      href="dr-profile.html"
+                    >
+                      <span className="mb-0 d-inline-block me-1">
+                        <i className="uil uil-setting align-middle h6"></i>
+                      </span>{" "}
+                      Profile Settings
+                    </a>
+                    <div className="dropdown-divider border-top"></div>
+                    <a
+                      className="dropdown-item text-dark"
+                      href="lock-screen.html"
+                    >
+                      <span className="mb-0 d-inline-block me-1">
+                        <i className="uil uil-sign-out-alt align-middle h6"></i>
+                      </span>{" "}
+                      Logout
+                    </a>
                   </div>
-                </li>
-              ) : (
-                <Link to="/signin" className="btn btn-primary">
-                  Login
-                </Link>
-              )}
+                </div>
+              </li>
             </ul>
           </div>
         </div>
         <div className="layout-specing">
           <div className="row">
             <div className="col-xl-9 col-md-6">
-              <h5 className="mb-0">Pets</h5>
+              <h5 className="mb-0">Doctors</h5>
               <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                 <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                   <li className="breadcrumb-item">
-                    <Link to="/customer-pet">Pets</Link>
+                    <a href="index.html">Doctris</a>
                   </li>
                   <li className="breadcrumb-item active" aria-current="page">
-                    Manage Pets
+                    Doctors
                   </li>
                 </ul>
               </nav>
             </div>
             <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-              <Link to="/customer-new-pet" className="btn btn-primary">
-                Add New Pet
+              <Link to="/add-doctor" className="btn btn-primary">
+                Add New Doctor
               </Link>
             </div>
           </div>
@@ -167,53 +191,53 @@ export default function ManagePet() {
                         className="border-bottom p-3"
                         style={{ minWidth: "150px" }}
                       >
-                        Species
+                        Phone
                       </th>
                       <th
                         className="border-bottom p-3"
                         style={{ minWidth: "150px" }}
                       >
-                        Age
-                      </th>
-                      <th
-                        className="border-bottom p-3"
-                        style={{ minWidth: "150px" }}
-                      >
-                        Gender
+                        Email
                       </th>
                       <th
                         className="border-bottom p-3"
                         style={{ minWidth: "220px" }}
                       >
-                        Generic
-                      </th>
-                      <th
-                        className="border-bottom p-3"
-                        style={{ minWidth: "250px" }}
-                      >
-                        Description
+                        Speciality
                       </th>
                       <th
                         className="border-bottom p-3"
                         style={{ minWidth: "150px" }}
-                      >
-                        Actions
-                      </th>
+                      ></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {userPets.map((pet, index) => (
+                    {doctors.map((doctor, index) => (
                       <tr key={index}>
                         <th className="p-3">{index + 1}</th>
-                        <td className="p-3">{pet.name}</td>
-                        <td className="p-3">{pet.species}</td>
-                        <td className="p-3">{pet.age}</td>
                         <td className="p-3">
-                          {pet.gender ? "Female" : "Male"}
+                          <a href="#" className="text-dark">
+                            <div className="d-flex align-items-center">
+                              <img
+                                src="../assets/images/doctors/02.jpg"
+                                className="avatar avatar-md-sm rounded-circle shadow"
+                                alt=""
+                              />
+                              <span className="ms-2">{doctor.fullName}</span>
+                            </div>
+                          </a>
                         </td>
-                        <td className="p-3">{pet.generic}</td>
-                        <td className="p-3">{pet.description}</td>
-                        <td className="p-3">
+                        <td className="p-3">{doctor.phoneNumber}</td>
+                        <td className="p-3">{doctor.email}</td>
+                        <td className="p-3">{doctor.speciality}</td>
+                        <td className="text-end p-3">
+                          <Link
+                            to="/create-slot-booking"
+                            className="btn btn-icon btn-pills btn-soft-primary"
+                          >
+                            <i className="uil uil-eye"></i>
+                          </Link>
+
                           <a
                             href="#"
                             className="btn btn-icon btn-pills btn-soft-danger"
@@ -225,14 +249,6 @@ export default function ManagePet() {
                         </td>
                       </tr>
                     ))}
-                    {/* Placeholder for No Pets Found */}
-                    {userPets.length === 0 && (
-                      <tr>
-                        <td colSpan="8" className="text-center p-3">
-                          No pets found.
-                        </td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
               </div>
