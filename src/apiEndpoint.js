@@ -4,7 +4,7 @@ export const CUSTOMER_API = {
     UPDATE_PROFILE: `${BASE_URL}/Customer/UpdateProfile`,
     SIGN_UP: `${BASE_URL}/Customer/Register`,
     MASTER: `${BASE_URL}/Customer`,
-    GET_DETAILS: `${BASE_URL}/user`,
+    GET_DETAILS: `${BASE_URL}/Customer/user`,
 };
 
 export const PET_API = {
