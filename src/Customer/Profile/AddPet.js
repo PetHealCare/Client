@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useAuth } from "../../Components/Login/Authen";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { DOCTOR_API, PET_API } from "../../apiEndpoint";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 
 export default function AddPet() {
@@ -40,7 +40,7 @@ export default function AddPet() {
         description: description,
       };
 
-      const response = await fetch("https://localhost:7083/api/pet", {
+      const response = await fetch(PET_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,3 @@
-const {REACT_APP_URL_API} = process.env;
-
 const BASE_URL = process.env.REACT_APP_URL_API;
 
 export const CUSTOMER_API = {

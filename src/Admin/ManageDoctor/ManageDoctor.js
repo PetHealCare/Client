@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { DOCTOR_API } from "../../apiEndpoint";
 // import { DOCTOR_API } from "../../apiEndpoint";
 
 export default function ManageDoctor() {
@@ -14,7 +15,7 @@ export default function ManageDoctor() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch("https://localhost:7083/api/doctor");
+      const response = await fetch(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items);
     } catch (error) {

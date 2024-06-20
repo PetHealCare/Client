@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BOOKING_API } from "../../apiEndpoint";
 
 export default function ManageAppointment() {
   const [appointments, setAppointments] = useState([]);
@@ -15,7 +16,7 @@ export default function ManageAppointment() {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch("https://localhost:7083/api/Booking");
+      const response = await fetch(BOOKING_API.MASTER);
       const data = await response.json();
       setAppointments(data);
       console.log("data", data);

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 import { useAuth } from "../../Components/Login/Authen";
+import { PET_API } from "../../apiEndpoint";
 
 export default function ManagePet() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function ManagePet() {
   const fetchUserPets = async () => {
     try {
       const response = await fetch(
-        `https://localhost:7083/api/pet?CustomerId=${user.customerId}`
+        `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
       setUserPets(data.data.items || []);
