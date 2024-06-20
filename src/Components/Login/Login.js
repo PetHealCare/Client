@@ -18,7 +18,6 @@ export default function Login() {
     event.preventDefault();
     setLoading(true);
     setError("");
-
     try {
       const response = await fetch(
         "https://localhost:7083/api/Authentication/login",
@@ -30,7 +29,7 @@ export default function Login() {
           body: JSON.stringify({ email, password, remember }),
         }
       );
-
+      console.log("env:", process.env.REACT_APP_URL_API);
       console.log("Response status:", response.status);
 
       const responseData = await response.text();
