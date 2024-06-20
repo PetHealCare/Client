@@ -18,7 +18,7 @@ export default function AddDoctor() {
 
     const fetchDoctors = async () => {
         try {
-            const response = await fetch(DOCTOR_API.MASTER);
+            const response = await fetch('https://localhost:7083/api/doctor');
             const data = await response.json();
             setDoctors(data.data.items);
         } catch (error) {
@@ -41,7 +41,7 @@ export default function AddDoctor() {
         };
 
         try {
-            const response = await fetch(DOCTOR_API.MASTER, {
+            const response = await fetch('https://localhost:7083/api/doctor', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

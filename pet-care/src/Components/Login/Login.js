@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./Authen";
 import { Link } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
-import { AUTH_API, CUSTOMER_API, STAFF_API, DOCTOR_API } from "../../apiEndpoint";
+import { jwtDecode } from "jwt-decode";
+// import { AUTH_API, CUSTOMER_API, STAFF_API, DOCTOR_API } from "../../apiEndpoint";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -19,59 +19,70 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    console.log("Attempting login with:", { email, password, remember });
-
     try {
-      const response = await fetch(AUTH_API.LOGIN, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, remember }),
-      });
+      const response = await fetch(
+        "https://localhost:7083/api/Authentication/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, remember }),
+        }
+      );
 
       console.log("Response status:", response.status);
-      
-      const responseData = await response.text(); // Get response as text
-      console.log("response", responseData);
 
-      
+      const responseData = await response.text();
+      console.log("Response data:", responseData);
+
       if (response.ok) {
         const token = responseData;
-        localStorage.setItem('authToken', token); // Store the token
+        localStorage.setItem("authToken", token);
 
-        const decodedToken = jwtDecode(token); // Decode the token to get user info
-        console.log("Decoded Token:", decodedToken); // Log the decoded token
+        const decodedToken = jwtDecode(token);
+        console.log("Decoded Token:", decodedToken);
         setUser(decodedToken);
 
         let userDetails;
 
-       if (decodedToken.Role === "Staff") {
-          userDetails = await fetch(`${STAFF_API.GET_DETAILS}/${decodedToken.UserId}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`
+        if (decodedToken.Role === "Staff") {
+          userDetails = await fetch(
+            `https://localhost:7083/api/Staffs/user/${decodedToken.UserId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          }).then(res => res.json());
-          console.log("userDetails: ", userDetails);
-        } 
-        if (decodedToken.Role === "Customer") {
-          userDetails = await fetch(`${CUSTOMER_API.GET_DETAILS}/${decodedToken.UserId}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`
+          ).then((res) => {
+            if (!res.ok) throw new Error("Failed to fetch staff details");
+            return res.json();
+          });
+        } else if (decodedToken.Role === "Customer") {
+          userDetails = await fetch(
+            `https://localhost:7083/api/Customer/user/${decodedToken.UserId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          }).then(res => res.json());
-        }else {
-          userDetails = await fetch(`${DOCTOR_API.MASTER}/${decodedToken.UserId}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`
+          ).then((res) => res.json());
+        } else {
+          userDetails = await fetch(
+            `https://localhost:7083/api/doctor/${decodedToken.UserId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          }).then(res => res.json());
+          ).then((res) => res.json());
         }
 
         console.log("User details:", userDetails);
-        setUser(userDetails); // Update user state with fetched details
+        setUser(userDetails);
 
-        if (decodedToken.role === "Staff") {
+        console.log("Role", decodedToken.Role === "Staff");
+        if (decodedToken.Role === "Staff") {
           navigate("/manage-appointment");
         } else {
           navigate("/");
@@ -99,12 +110,19 @@ export default function Login() {
 
       <section
         className="bg-home d-flex bg-light align-items-center"
-        style={{ background: "url('../assets/images/bg/bg-lines-one.png') center" }}
+        style={{
+          background: "url('../assets/images/bg/bg-lines-one.png') center",
+        }}
       >
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-5 col-md-8">
-              <img src="../assets/images/logo-dark.png" height="22" className="mx-auto d-block" alt="" />
+              <img
+                src="../assets/images/logo-dark.png"
+                height="22"
+                className="mx-auto d-block"
+                alt=""
+              />
               <div className="card login-page shadow mt-4 rounded border-0">
                 <div className="card-body">
                   <h4 className="text-center">Sign In</h4>
@@ -112,7 +130,10 @@ export default function Login() {
                     <div className="row">
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label className="form-label" style={{ textAlign: "start", display: "block" }}>
+                          <label
+                            className="form-label"
+                            style={{ textAlign: "start", display: "block" }}
+                          >
                             Your Email <span className="text-danger">*</span>
                           </label>
                           <input
@@ -129,7 +150,10 @@ export default function Login() {
 
                       <div className="col-lg-12">
                         <div className="mb-3">
-                          <label className="form-label" style={{ textAlign: "start", display: "block" }}>
+                          <label
+                            className="form-label"
+                            style={{ textAlign: "start", display: "block" }}
+                          >
                             Password <span className="text-danger">*</span>
                           </label>
                           <input
@@ -155,12 +179,18 @@ export default function Login() {
                                 id="remember-check"
                                 onChange={(e) => setRemember(e.target.checked)}
                               />
-                              <label className="form-check-label" htmlFor="remember-check">
+                              <label
+                                className="form-check-label"
+                                htmlFor="remember-check"
+                              >
                                 Remember me
                               </label>
                             </div>
                           </div>
-                          <a href="forgot-password.html" className="text-dark h6 mb-0">
+                          <a
+                            href="forgot-password.html"
+                            className="text-dark h6 mb-0"
+                          >
                             Forgot password ?
                           </a>
                         </div>
@@ -176,7 +206,11 @@ export default function Login() {
 
                       <div className="col-lg-12 mb-0">
                         <div className="d-grid">
-                          <button className="btn btn-primary" type="submit" disabled={loading}>
+                          <button
+                            className="btn btn-primary"
+                            type="submit"
+                            disabled={loading}
+                          >
                             {loading ? "Signing in..." : "Sign in"}
                           </button>
                         </div>
@@ -184,7 +218,9 @@ export default function Login() {
 
                       <div className="col-12 text-center">
                         <p className="mb-0 mt-3">
-                          <small className="text-dark me-2">Don't have an account ?</small>
+                          <small className="text-dark me-2">
+                            Don't have an account ?
+                          </small>
                           <Link to="/signup" className="text-dark fw-bold">
                             Sign Up
                           </Link>
