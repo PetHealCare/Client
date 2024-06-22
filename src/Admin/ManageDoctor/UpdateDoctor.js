@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DOCTOR_API } from "../../apiEndpoint";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../Components/Login/Authen";
 import { useNavigate } from "react-router-dom";
 
-export default function AddDoctor() {
-  const { user, logout } = useAuth();
+export default function UpdateDoctor() {
+  const { id } = useParams();
+  const [doctor, setDoctor] = useState({});
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [speciality, setSpeciality] = useState("");
-  const [doctors, setDoctors] = useState([]);
+  const { user, logout } = useAuth();
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -19,54 +21,53 @@ export default function AddDoctor() {
   };
 
   useEffect(() => {
-    fetchDoctors();
-  }, []);
+    fetchDoctorDetails();
+  }, [id]);
 
-  const fetchDoctors = async () => {
+  const fetchDoctorDetails = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
-      if (response.ok) {
-        const data = await response.json();
-        setDoctors(data.data.items);
-      } else {
-        console.log("Error fetching doctors:", response.statusText);
-      }
+      const response = await fetch(`${DOCTOR_API.MASTER}/${id}`);
+      const data = await response.json();
+      const doctorData = data.data;
+      setDoctor(doctorData);
+      setFullName(doctorData.fullName);
+      setPhoneNumber(doctorData.phoneNumber);
+      setSpeciality(doctorData.speciality);
     } catch (error) {
-      console.log("Error fetching doctors:", error);
+      console.log("Error fetching doctor details: ", error);
     }
   };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const newDoctor = {
+    const updatedDoctor = {
       fullName,
       phoneNumber,
       speciality,
     };
-    console.log("New Doctor Data:", newDoctor); // Log newDoctor to inspect data
 
     try {
-      const response = await fetch(DOCTOR_API.MASTER, {
-        method: "POST",
+      const response = await fetch(`${DOCTOR_API.MASTER}/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newDoctor),
+        body: JSON.stringify(updatedDoctor),
       });
-
       if (response.ok) {
         const data = await response.json();
-        console.log("Doctor added successfully:", data);
+        console.log("Doctor updated successfully:", data);
         // Optionally, clear the form or redirect to another page
+        setDoctor({});
         setFullName("");
         setPhoneNumber("");
         setSpeciality("");
-        fetchDoctors(); // Update the list of doctors
+        // Redirect to the doctor list page or show a success message
       } else {
-        console.log("Error adding doctor:", response.statusText);
+        console.log("Error updating doctor:", response.statusText);
       }
     } catch (error) {
-      console.log("Error adding doctor:", error);
+      console.log("Error updating doctor:", error);
     }
   };
 
@@ -191,14 +192,14 @@ export default function AddDoctor() {
         <div className="layout-specing">
           <div className="row">
             <div className="col-xl-9 col-md-6">
-              <h5 className="mb-0">Doctors</h5>
+              <h5 className="mb-0">Update Doctor</h5>
               <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                 <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                   <li className="breadcrumb-item">
                     <a href="index.html">Doctris</a>
                   </li>
                   <li className="breadcrumb-item active" aria-current="page">
-                    Doctors
+                    Update Doctor
                   </li>
                 </ul>
               </nav>
@@ -208,7 +209,7 @@ export default function AddDoctor() {
                 Back to Doctors
               </Link>
             </div>
-            <h2>Add New Doctor</h2>
+            <h2>Update Doctor</h2>
             <div
               className="d-flex justify-content-center align-items-center"
               style={{ height: "40vh" }}
@@ -260,14 +261,14 @@ export default function AddDoctor() {
                       {/* <!--end col--> */}
                     </div>
                     {/* <!--end row--> */}
+
                     <div className="row">
                       <div className="col-md-12 text-end">
                         <button type="submit" className="btn btn-primary">
-                          Add New Doctor
+                          Update Doctor
                         </button>
                       </div>
                     </div>
-
                     {/* <!--end row--> */}
                   </form>
                   {/* <!--end form--> */}
