@@ -1,10 +1,15 @@
-// src/Components/Navbar/Navbar.js
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Login/Authen";
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/signin"); // Redirect to sign-in page
+  };
 
   return (
     <div>
@@ -38,22 +43,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* <div className="menu-extras">
-            <div className="menu-item">
-              <a
-                className="navbar-toggle"
-                id="isToggle"
-                onClick={() => toggleMenu()}
-              >
-                <div className="lines">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-              </a>
-            </div>
-          </div> */}
-
           <ul className="dropdowns list-inline mb-0">
             {user ? (
               <li className="list-inline-item mb-0 ms-1">
@@ -61,7 +50,7 @@ export default function Navbar() {
                   <a
                     type="text"
                     className=""
-                    href=""
+                    href="#"
                     style={{ color: "white" }}
                     data-bs-toggle="dropdown"
                     aria-haspopup="true"
@@ -70,12 +59,6 @@ export default function Navbar() {
                     Welcome, {user.fullName}
                   </a>
                   <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
-                    {/* <a
-                      className="dropdown-item text-dark"
-                      href="doctor-dashboard.html"
-                    >
-                      Dashboard
-                    </a> */}
                     <Link
                       className="dropdown-item text-dark"
                       to="/profile-customer"
@@ -89,9 +72,12 @@ export default function Navbar() {
                       Dashboard Manage
                     </Link>
                     <div className="dropdown-divider border-top"></div>
-                    <Link className="dropdown-item text-dark" to="/signin">
+                    <button
+                      className="dropdown-item text-dark"
+                      onClick={handleLogout}
+                    >
                       Logout
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -111,7 +97,7 @@ export default function Navbar() {
                 <Link to="/service">Services</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
-                <Link to="/booking">Book Apointment</Link>
+                <Link to="/booking">Book Appointment</Link>
               </li>
               <li className="has-submenu parent-parent-menu-item">
                 <Link to="/blog">Blog</Link>

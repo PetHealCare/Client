@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./Authen";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { AUTH_API, CUSTOMER_API, DOCTOR_API, STAFF_API } from "../../apiEndpoint";
-// import { AUTH_API, CUSTOMER_API, STAFF_API, DOCTOR_API } from "../../apiEndpoint";
+import {
+  AUTH_API,
+  CUSTOMER_API,
+  DOCTOR_API,
+  STAFF_API,
+} from "../../apiEndpoint";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -20,16 +24,13 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        AUTH_API.LOGIN,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password, remember }),
-        }
-      );
+      const response = await fetch(AUTH_API.LOGIN, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, remember }),
+      });
       console.log("Response status:", response.status);
 
       const responseData = await response.text();

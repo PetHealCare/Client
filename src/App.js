@@ -13,11 +13,11 @@ import Profile from "./Doctor/Profile/ProfileDoctor";
 import ProfileCustomer from "./Customer/Profile/ProfileCust";
 import ManageDoctor from "./Admin/ManageDoctor/ManageDoctor";
 import ManageAppointment from "./Admin/ManageAppointment/ManageAppointment";
-import CreateSlotBooking from "./Admin/ManageAppointment/CreateSlotBooking";
 import AddDoctor from "./Admin/ManageDoctor/AddDoctor";
 import RegisterPet from "./Customer/Profile/RegisterPet";
 import CustomerPet from "./Customer/Profile/CustomerPet";
 import AddPet from "./Customer/Profile/AddPet";
+import UpdateDoctor from "./Admin/ManageDoctor/UpdateDoctor";
 
 function App() {
   return (
@@ -44,15 +44,11 @@ function App() {
               path="/manage-appointment"
               element={<ManageAppointment />}
             />
-            <Route
-              exact
-              path="/create-slot-booking"
-              element={<CreateSlotBooking />}
-            />
             <Route exact path="/register-pet" element={<RegisterPet />} />
             <Route exact path="/add-doctor" element={<AddDoctor />} />
             <Route exact path="/customer-pet" element={<CustomerPet />} />
             <Route exact path="/customer-new-pet" element={<AddPet />} />
+            <Route exact path="/update-doctor/:id" element={<UpdateDoctor />} />
           </Routes>
         </Router>
       </AuthProvider>

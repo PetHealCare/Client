@@ -2,32 +2,107 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BOOKING_API } from "../../apiEndpoint";
+import { CUSTOMER_API, PET_API, BOOKING_API } from "../../apiEndpoint";
+import { useAuth } from "../../Components/Login/Authen";
 
 export default function ManageAppointment() {
+  const { user, logout } = useAuth();
   const [appointments, setAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("Today");
-  const [user, setUser] = useState(null); // Assuming you have some user state management
+  const [currentPage, setCurrentPage] = useState(1);
+  const [customers, setCustomers] = useState([]);
+  const [pets, setPets] = useState([]);
+  const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate("/signin"); // Redirect to sign-in page
+  };
 
   useEffect(() => {
-    fetchAppointments();
-  }, []);
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user]);
 
   const fetchAppointments = async () => {
     try {
       const response = await fetch(BOOKING_API.MASTER);
       const data = await response.json();
-      setAppointments(data);
-      console.log("data", data);
+      if (Array.isArray(data)) {
+        const appointmentsWithData = await Promise.all(
+          data.map(async (appointment) => {
+            try {
+              const customerResponse = await fetchCustomer(
+                appointment.customerId
+              );
+              const petResponse = await fetchPet(appointment.petId);
+
+              return {
+                ...appointment,
+                customerName: customerResponse.fullName,
+                customerPhoneNumber: customerResponse.phoneNumber,
+                petName: petResponse.data.name,
+              };
+            } catch (error) {
+              console.error("Error fetching details for appointment:", error);
+              return appointment; // Return original appointment object on error
+            }
+          })
+        );
+        setAppointments(appointmentsWithData);
+      } else {
+        console.error("Fetched data is not an array:", data);
+        setAppointments([]);
+      }
     } catch (error) {
-      console.log("Error fetching appointments: ", error);
+      console.error("Error fetching appointments: ", error);
+      setAppointments([]);
+      toast.error("Error fetching appointments");
     }
   };
 
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
+  const fetchPet = async (petId) => {
+    try {
+      const response = await fetch(PET_API.SINGLE(petId));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch pet with ID ${petId}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching pets:", error);
+      toast.error("Error fetching pets");
+      throw error;
+    }
   };
+
+  const fetchCustomer = async (customerId) => {
+    try {
+      const response = await fetch(CUSTOMER_API.SINGLE(customerId));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch customer with ID ${customerId}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      toast.error("Error fetching customers");
+      throw error;
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastAppointment = currentPage * itemsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - itemsPerPage;
+  const currentAppointments = appointments.slice(
+    indexOfFirstAppointment,
+    indexOfLastAppointment
+  );
+
+  const totalItems = appointments.length;
 
   return (
     <div className="page-wrapper doctris-theme toggled">
@@ -155,7 +230,7 @@ export default function ManageAppointment() {
                     aria-expanded="false"
                   >
                     <img
-                      src="../assets/images/doctors/01.jpg"
+                      src="../assets/images/client/05.jpg"
                       className="avatar avatar-ex-small rounded-circle"
                       alt=""
                     />
@@ -164,20 +239,6 @@ export default function ManageAppointment() {
                     className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3"
                     style={{ minWidth: "200px" }}
                   >
-                    <a
-                      className="dropdown-item d-flex align-items-center text-dark"
-                      href="profile.html"
-                    >
-                      <img
-                        src="../assets/images/doctors/01.jpg"
-                        className="avatar avatar-md-sm rounded-circle border shadow"
-                        alt=""
-                      />
-                      <div className="flex-1 ms-2">
-                        <span className="d-block mb-1">Calvin Carlo</span>
-                        <small className="text-muted">Orthopedic</small>
-                      </div>
-                    </a>
                     <a
                       className="dropdown-item text-dark"
                       href="dr-profile.html"
@@ -188,12 +249,12 @@ export default function ManageAppointment() {
                       Profile Settings
                     </a>
                     <div className="dropdown-divider border-top"></div>
-                    <Link className="dropdown-item text-dark" to="/signin">
-                      <span className="mb-0 d-inline-block me-1">
-                        <i className="uil uil-sign-out-alt align-middle h6"></i>
-                      </span>{" "}
+                    <button
+                      className="dropdown-item text-dark"
+                      onClick={handleLogout}
+                    >
                       Logout
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -224,17 +285,7 @@ export default function ManageAppointment() {
                   <form>
                     <div className="row justify-content-between align-items-center">
                       <div className="col-sm-12 col-md-5">
-                        <div className="mb-0 position-relative">
-                          <select
-                            className="form-select form-control"
-                            value={selectedDate}
-                            onChange={handleDateChange}
-                          >
-                            <option value="Today">Today</option>
-                            <option value="Tomorrow">Tomorrow</option>
-                            <option value="Yesterday">Yesterday</option>
-                          </select>
-                        </div>
+                        <div className="mb-0 position-relative"></div>
                       </div>
                       {/* <!--end col--> */}
                       <div className="col-sm-12 col-md-7 mt-4 mt-sm-0">
@@ -276,7 +327,7 @@ export default function ManageAppointment() {
                           className="border-bottom p-3"
                           style={{ minWidth: "180px" }}
                         >
-                          Name
+                          Customer
                         </th>
                         <th
                           className="border-bottom p-3"
@@ -304,44 +355,19 @@ export default function ManageAppointment() {
                       </tr>
                     </thead>
                     <tbody>
-                      {appointments.map((info, index) => (
+                      {currentAppointments.map((appointment, index) => (
                         <tr key={index}>
-                          <th className="p-3">{index + 1}</th>
                           <td className="p-3">
-                            <a href="#" className="text-dark">
-                              <div className="d-flex align-items-center">
-                                <img
-                                  src="../assets/images/client/09.jpg"
-                                  className="avatar avatar-md-sm rounded-circle shadow"
-                                  alt=""
-                                />
-                                <span className="ms-2">
-                                  {info.customerName}
-                                </span>
-                              </div>
-                            </a>
+                            {indexOfFirstAppointment + index + 1}
                           </td>
-                          <td className="p-3">{info.customerPhoneNumber}</td>
-                          <td className="p-3">{info.petName}</td>
-                          <td className="p-3">{info.bookingDate}</td>
-                          <td className="p-3">{info.note}</td>
+                          <td className="p-3">{appointment.customerName}</td>
+                          <td className="p-3">
+                            {appointment.customerPhoneNumber}
+                          </td>
+                          <td className="p-3">{appointment.petName}</td>
+                          <td className="p-3">{appointment.bookingDate}</td>
+                          <td className="p-3">{appointment.note}</td>
                           <td className="text-end p-3">
-                            {info.slotBookings &&
-                            info.slotBookings.length > 0 ? (
-                              <button
-                                className="btn btn-icon btn-pills btn-soft-primary disabled"
-                                aria-disabled="true"
-                              >
-                                <i className="uil uil-eye"></i>
-                              </button>
-                            ) : (
-                              <Link
-                                to={`/create-slot-booking?appointmentId=${info.id}`}
-                                className="btn btn-icon btn-pills btn-soft-primary"
-                              >
-                                <i className="uil uil-eye"></i>
-                              </Link>
-                            )}
                             <a
                               href="#"
                               className="btn btn-icon btn-pills btn-soft-success"
@@ -373,36 +399,54 @@ export default function ManageAppointment() {
               <div className="col-12 mt-4">
                 <div className="d-md-flex align-items-center text-center justify-content-between">
                   <span className="text-muted me-3">
-                    Showing 1 - 10 out of 50
+                    Showing {indexOfFirstAppointment + 1} -{" "}
+                    {Math.min(indexOfLastAppointment, totalItems)} out of{" "}
+                    {totalItems}
                   </span>
                   <ul className="pagination justify-content-center mb-0 mt-3 mt-sm-0">
-                    <li className="page-item">
-                      <a
+                    <li
+                      className={`page-item ${currentPage === 1 && "disabled"}`}
+                    >
+                      <button
                         className="page-link"
-                        href="javascript:void(0)"
-                        aria-label="Previous"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
                       >
                         Prev
-                      </a>
+                      </button>
                     </li>
-                    <li className="page-item active">
-                      <a className="page-link" href="javascript:void(0)">
-                        1
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a className="page-link" href="javascript:void(0)">
-                        2
-                      </a>
-                    </li>
-                    <li className="page-item">
-                      <a
+                    {[
+                      ...Array(Math.ceil(totalItems / itemsPerPage)).keys(),
+                    ].map((page) => (
+                      <li
+                        className={`page-item ${
+                          currentPage === page + 1 ? "active" : ""
+                        }`}
+                        key={page}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(page + 1)}
+                        >
+                          {page + 1}
+                        </button>
+                      </li>
+                    ))}
+                    <li
+                      className={`page-item ${
+                        currentPage === Math.ceil(totalItems / itemsPerPage) &&
+                        "disabled"
+                      }`}
+                    >
+                      <button
                         className="page-link"
-                        href="javascript:void(0)"
-                        aria-label="Next"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={
+                          currentPage === Math.ceil(totalItems / itemsPerPage)
+                        }
                       >
                         Next
-                      </a>
+                      </button>
                     </li>
                   </ul>
                 </div>

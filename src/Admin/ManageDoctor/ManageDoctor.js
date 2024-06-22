@@ -3,11 +3,18 @@ import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { DOCTOR_API } from "../../apiEndpoint";
-// import { DOCTOR_API } from "../../apiEndpoint";
+import { useAuth } from "../../Components/Login/Authen";
+import { useNavigate } from "react-router-dom";
 
 export default function ManageDoctor() {
   const [doctors, setDoctors] = useState([]);
   const [selectedDate, setSelectedDate] = useState("Today");
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    navigate("/signin"); // Redirect to sign-in page
+  };
 
   useEffect(() => {
     fetchDoctors();
@@ -100,7 +107,7 @@ export default function ManageDoctor() {
                     aria-expanded="false"
                   >
                     <img
-                      src="../assets/images/doctors/01.jpg"
+                      src="../assets/images/client/05.jpg"
                       className="avatar avatar-ex-small rounded-circle"
                       alt=""
                     />
@@ -109,20 +116,6 @@ export default function ManageDoctor() {
                     className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3"
                     style={{ minWidth: "200px" }}
                   >
-                    <a
-                      className="dropdown-item d-flex align-items-center text-dark"
-                      href="profile.html"
-                    >
-                      <img
-                        src="../assets/images/doctors/01.jpg"
-                        className="avatar avatar-md-sm rounded-circle border shadow"
-                        alt=""
-                      />
-                      <div className="flex-1 ms-2">
-                        <span className="d-block mb-1">Calvin Carlo</span>
-                        <small className="text-muted">Orthopedic</small>
-                      </div>
-                    </a>
                     <a
                       className="dropdown-item text-dark"
                       href="dr-profile.html"
@@ -133,15 +126,12 @@ export default function ManageDoctor() {
                       Profile Settings
                     </a>
                     <div className="dropdown-divider border-top"></div>
-                    <a
-                      className="dropdown-item text-dark"
-                      href="lock-screen.html"
-                    >
+                    <Link className="dropdown-item text-dark" to="/signin">
                       <span className="mb-0 d-inline-block me-1">
                         <i className="uil uil-sign-out-alt align-middle h6"></i>
                       </span>{" "}
                       Logout
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </li>
@@ -195,12 +185,6 @@ export default function ManageDoctor() {
                       </th>
                       <th
                         className="border-bottom p-3"
-                        style={{ minWidth: "150px" }}
-                      >
-                        Email
-                      </th>
-                      <th
-                        className="border-bottom p-3"
                         style={{ minWidth: "220px" }}
                       >
                         Speciality
@@ -228,11 +212,10 @@ export default function ManageDoctor() {
                           </a>
                         </td>
                         <td className="p-3">{doctor.phoneNumber}</td>
-                        <td className="p-3">{doctor.email}</td>
                         <td className="p-3">{doctor.speciality}</td>
                         <td className="text-end p-3">
                           <Link
-                            to="/create-slot-booking"
+                            to={`/update-doctor/${doctor.doctorId}`}
                             className="btn btn-icon btn-pills btn-soft-primary"
                           >
                             <i className="uil uil-eye"></i>
