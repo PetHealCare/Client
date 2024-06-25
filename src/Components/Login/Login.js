@@ -48,7 +48,7 @@ export default function Login() {
 
         if (decodedToken.Role === "Staff") {
           userDetails = await fetch(
-            `${STAFF_API.MASTER}/user/${decodedToken.UserId}`,
+            `${STAFF_API.MASTER}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -187,12 +187,6 @@ export default function Login() {
                               </label>
                             </div>
                           </div>
-                          <a
-                            href="forgot-password.html"
-                            className="text-dark h6 mb-0"
-                          >
-                            Forgot password ?
-                          </a>
                         </div>
                       </div>
 

@@ -72,9 +72,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Veterinary x-ray for Pet
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -88,9 +88,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Protect and effective vaccinations
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -104,9 +104,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Health check-ups and treatment
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -120,9 +120,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Blood testing
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -136,9 +136,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     24/7 emergency care
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -152,9 +152,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     C-Section surgery
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -168,9 +168,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Complex surgery
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -184,9 +184,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Medical boarding
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -200,9 +200,9 @@ export default function Service() {
                   alt=""
                 />
                 <div className="card-body p-4">
-                  <a href="blog-detail.html" className="text-dark title h5">
+                  <Link to="/booking" className="text-dark title h5">
                     Bone surgery
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

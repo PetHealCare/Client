@@ -39,18 +39,34 @@ export default function Sidebar() {
             </li>
             <li>
               <Link to="/manage-appointment">
-                <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
+                <i className="uil uil-bookmark-full me-2 d-inline-block"></i>{" "}
                 Manage Appointment
               </Link>
             </li>
             <li>
               <Link to="/manage-doctor">
-                <i className="uil uil-user me-2 d-inline-block"></i>Manage
-                Doctor
+                <i className="uil uil-stethoscope me-2 d-inline-block"></i>
+                Manage Doctor
               </Link>
             </li>
-            {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
-                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
+            <li>
+              <Link to="/manage-schedule">
+                <i className="uil uil-schedule me-2 d-inline-block"></i> Manage
+                Schedule
+              </Link>
+            </li>
+            <li>
+              <Link to="/manage-customer">
+                <i className="uil uil-user me-2 d-inline-block"></i> Manage
+                Customer
+              </Link>
+            </li>
+            <li>
+              <Link to="/manage-service">
+                <i className="uil uil-server me-2 d-inline-block"></i> Manage
+                Service
+              </Link>
+            </li>
           </ul>
         </div>
         <ul className="sidebar-footer list-unstyled mb-0">

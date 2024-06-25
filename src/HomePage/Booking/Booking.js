@@ -12,10 +12,9 @@ import {
   SCHEDULE_API,
   SERVICE_API,
 } from "../../apiEndpoint";
-// import { BOOKING_API, DOCTOR_API, PET_API, SCHEDULE_API, SERVICE_API } from "../../apiEndpoint";
 
 export default function Booking() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [userPets, setUserPets] = useState([]);
   const [selectedPetId, setSelectedPetId] = useState("");
@@ -27,6 +26,12 @@ export default function Booking() {
   const [selectedServices, setSelectedServices] = useState([]);
   const [availableSchedules, setAvailableSchedules] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/signin"); // Redirect to sign-in page
+  };
 
   useEffect(() => {
     if (user) {
@@ -102,7 +107,7 @@ export default function Booking() {
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
-      console.log("data", data);
+      console.log("data user pet", data);
       setUserPets(data.data.items || []);
     } catch (error) {
       console.error("Error fetching user pets:", error);
@@ -146,6 +151,7 @@ export default function Booking() {
       if (response.ok) {
         console.log("Booking successful!");
         toast.success("Booking successful!");
+        setTimeout(() => window.location.reload(), 2000);
       } else {
         const errorText = await response.text();
         console.error("Error booking appointment:", response.status, errorText);
@@ -163,6 +169,13 @@ export default function Booking() {
       return;
     }
     setSelectedServices(selectedOptions.map((option) => option.value));
+    const total = selectedOptions.reduce(
+      (acc, option) =>
+        acc +
+        services.find((service) => service.serviceId === option.value).price,
+      0
+    );
+    setTotalPrice(total);
   };
 
   const handleDateChange = (e) => {
@@ -214,10 +227,19 @@ export default function Booking() {
                     >
                       Profile Settings
                     </Link>
-                    <div className="dropdown-divider border-top"></div>
-                    <Link className="dropdown-item text-dark" to="/signin">
-                      Logout
+                    <Link
+                      className="dropdown-item text-dark"
+                      to="/customer-pet"
+                    >
+                      Dashboard Manage
                     </Link>
+                    <div className="dropdown-divider border-top"></div>
+                    <button
+                      className="dropdown-item text-dark"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               </li>
@@ -423,6 +445,11 @@ export default function Booking() {
                               onChange={handleServiceChange}
                               maxMenuHeight={150} // Set maximum height to limit number of visible options
                             />
+                          </div>
+                          <div className="mt-3">
+                            <label className="form-label">
+                              Total Price: ${totalPrice}
+                            </label>
                           </div>
                         </div>
                         <div className="col-md-6">

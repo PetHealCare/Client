@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import { useParams } from "react-router-dom";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { CUSTOMER_API } from "../../apiEndpoint";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Components/Login/Authen";
 import { useNavigate } from "react-router-dom";
@@ -9,13 +9,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 
-export default function UpdateDoctor() {
+export default function UpdateCustomer() {
   const { id } = useParams();
-  const [doctor, setDoctor] = useState({});
+  const [customer, setCustomer] = useState({});
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [speciality, setSpeciality] = useState("");
+  const [address, setAddress] = useState("");
   const { user, logout } = useAuth();
 
   const navigate = useNavigate();
@@ -25,59 +25,58 @@ export default function UpdateDoctor() {
   };
 
   useEffect(() => {
-    fetchDoctorDetails(id);
+    fetchCustomerDetails(id);
   }, [id]);
 
-  const fetchDoctorDetails = async (doctorId) => {
+  const fetchCustomerDetails = async (customerId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetch(`${CUSTOMER_API.MASTER}/${customerId}`);
       const data = await response.json();
-      const doctorData = data.data;
-      setDoctor(doctorData);
-      setFullName(doctorData.fullName);
-      setPhoneNumber(doctorData.phoneNumber);
-      setPassword(doctorData.email);
-      setSpeciality(doctorData.speciality);
+      const customerData = data;
+      setCustomer(customerData);
+      setFullName(customerData.fullName);
+      setPhoneNumber(customerData.phoneNumber);
+      setPassword(customerData.email);
+      setAddress(customerData.address);
     } catch (error) {
-      console.log("Error fetching doctor details: ", error);
+      console.log("Error fetching customer details: ", error);
     }
   };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const updatedDoctor = {
-      doctorId: id,
+    const updatedCustomer = {
+      customerId: id,
       fullName,
       phoneNumber,
-      speciality,
+      address,
       password,
     };
 
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${id}`, {
+      const response = await fetch(`${CUSTOMER_API.MASTER}/UpdateProfile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedDoctor),
+        body: JSON.stringify(updatedCustomer),
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("Doctor updated successfully:", data);
-        toast.success("Doctor updated successfully!");
-        setTimeout(() => navigate("/manage-doctor"), 1000);
+        console.log("Customer updated successfully:", data);
+        toast.success("Customer updated successfully!");
+        setTimeout(() => navigate("/manage-customer"), 1000);
 
         // Optionally, clear the form or redirect to another page
         setFullName("");
         setPhoneNumber("");
-        setSpeciality("");
+        setAddress("");
         setPassword("");
-        // Redirect to the doctor list page or show a success message
       } else {
-        console.log("Error updating doctor:", response.statusText);
+        console.log("Error updating customer:", response.statusText);
       }
     } catch (error) {
-      console.log("Error updating doctor:", error);
+      console.log("Error updating customer:", error);
     }
   };
 
@@ -94,24 +93,24 @@ export default function UpdateDoctor() {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-md-6">
-                <h5 className="mb-0">Update Doctor</h5>
+                <h5 className="mb-0">Update Customer</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
                       <a href="index.html">PetHealthCare</a>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Update Doctor
+                      Update Customer
                     </li>
                   </ul>
                 </nav>
               </div>
               <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-                <Link to="/manage-doctor" className="btn btn-primary">
-                  Back to Doctors
+                <Link to="/manage-customer" className="btn btn-primary">
+                  Back to Customers
                 </Link>
               </div>
-              <h2>Update Doctor</h2>
+              <h2>Update Customer</h2>
               <div
                 className="d-flex justify-content-center align-items-center"
                 style={{ height: "40vh" }}
@@ -150,13 +149,13 @@ export default function UpdateDoctor() {
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Speciality</label>
+                            <label className="form-label">Address</label>
                             <input
                               name="speciality"
                               type="text"
                               className="form-control"
-                              value={speciality}
-                              onChange={(e) => setSpeciality(e.target.value)}
+                              value={address}
+                              onChange={(e) => setAddress(e.target.value)}
                             />
                           </div>
                         </div>
@@ -181,7 +180,7 @@ export default function UpdateDoctor() {
                       <div className="row">
                         <div className="col-md-12 text-end">
                           <button type="submit" className="btn btn-primary">
-                            Update Doctor
+                            Update Customer
                           </button>
                         </div>
                       </div>

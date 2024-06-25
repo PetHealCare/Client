@@ -18,6 +18,15 @@ import RegisterPet from "./Customer/Profile/RegisterPet";
 import CustomerPet from "./Customer/Profile/CustomerPet";
 import AddPet from "./Customer/Profile/AddPet";
 import UpdateDoctor from "./Admin/ManageDoctor/UpdateDoctor";
+import CustomerBooking from "./Customer/Profile/CustomerBooking";
+import ManageSchedule from "./Admin/ManageSchedule/ManageSchedule";
+import AddSchedule from "./Admin/ManageSchedule/AddSchedule";
+import ManageCustomer from "./Admin/ManageCustomer/ManageCustomer";
+import UpdateCustomer from "./Admin/ManageCustomer/UpdateCustomer";
+import AddCustomer from "./Admin/ManageCustomer/AddCustomer";
+import ManageService from "./Admin/ManageService/ManageService";
+import UpdateService from "./Admin/ManageService/UpdateService";
+import AddService from "./Admin/ManageService/AddService";
 
 function App() {
   return (
@@ -49,6 +58,28 @@ function App() {
             <Route exact path="/customer-pet" element={<CustomerPet />} />
             <Route exact path="/customer-new-pet" element={<AddPet />} />
             <Route exact path="/update-doctor/:id" element={<UpdateDoctor />} />
+            <Route
+              exact
+              path="/customer-appointment"
+              element={<CustomerBooking />}
+            />
+            <Route exact path="/manage-schedule" element={<ManageSchedule />} />
+            <Route exact path="/add-schedule" element={<AddSchedule />} />
+            <Route exact path="/manage-customer" element={<ManageCustomer />} />
+            <Route
+              exact
+              path="/update-customer/:id"
+              element={<UpdateCustomer />}
+            />
+            <Route exact path="/add-customer" element={<AddCustomer />} />
+            <Route exact path="/manage-service" element={<ManageService />} />
+            <Route
+              exact
+              path="/update-service/:id"
+              element={<UpdateService />}
+            />
+
+            <Route exact path="/add-service" element={<AddService />} />
           </Routes>
         </Router>
       </AuthProvider>
