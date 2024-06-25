@@ -4,6 +4,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CUSTOMER_API, PET_API, BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
+import TopHeader from "../../Components/Sidebar/TopHeader";
+import Sidebar from "../../Components/Sidebar/Sidebar";
 
 export default function ManageAppointment() {
   const { user, logout } = useAuth();
@@ -86,7 +88,7 @@ export default function ManageAppointment() {
       return data;
     } catch (error) {
       console.error("Error fetching customers:", error);
-      toast.error("Error fetching customers");
+      // toast.error("Error fetching customers");
       throw error;
     }
   };
@@ -107,160 +109,9 @@ export default function ManageAppointment() {
   return (
     <div className="page-wrapper doctris-theme toggled">
       {/* Sidebar */}
-      <nav id="sidebar" className="sidebar-wrapper">
-        <div
-          className="sidebar-content"
-          data-simplebar
-          style={{ height: "calc(100% - 60px)" }}
-        >
-          <div className="sidebar-brand">
-            <a href="index.html">
-              <img
-                src="../assets/images/logo-dark.png"
-                height="22"
-                className="logo-light-mode"
-                alt=""
-              />
-              <img
-                src="../assets/images/logo-light.png"
-                height="22"
-                className="logo-dark-mode"
-                alt=""
-              />
-              <span className="sidebar-colored">
-                <img src="../assets/images/logo-light.png" height="22" alt="" />
-              </span>
-            </a>
-          </div>
-          <ul className="sidebar-menu">
-            <li>
-              <a href="index.html">
-                <i className="uil uil-dashboard me-2 d-inline-block"></i>
-                Dashboard
-              </a>
-            </li>
-            <li>
-              <Link to="/manage-appointment">
-                <i className="uil uil-stethoscope me-2 d-inline-block"></i>
-                Manage Appointment
-              </Link>
-            </li>
-            <li>
-              <Link to="/manage-doctor">
-                <i className="uil uil-user me-2 d-inline-block"></i>Manage
-                Doctor
-              </Link>
-            </li>
-            {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
-                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
-          </ul>
-        </div>
-        <ul className="sidebar-footer list-unstyled mb-0">
-          <li className="list-inline-item mb-0 ms-1">
-            <a href="#" className="btn btn-icon btn-pills btn-soft-primary">
-              <i className="uil uil-comment"></i>
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <Sidebar />
       <main className="page-content bg-light">
-        <div className="top-header">
-          <div className="header-bar d-flex justify-content-between border-bottom">
-            <div className="d-flex align-items-center">
-              <a href="#" className="logo-icon">
-                <img
-                  src="../assets/images/logo-icon.png"
-                  height="30"
-                  className="small"
-                  alt=""
-                />
-                <span className="big">
-                  <img
-                    src="../assets/images/logo-dark.png"
-                    height="22"
-                    className="logo-light-mode"
-                    alt=""
-                  />
-                  <img
-                    src="../assets/images/logo-light.png"
-                    height="22"
-                    className="logo-dark-mode"
-                    alt=""
-                  />
-                </span>
-              </a>
-              <a
-                id="close-sidebar"
-                className="btn btn-icon btn-pills btn-soft-primary ms-2"
-                href="#"
-              >
-                <i className="uil uil-bars"></i>
-              </a>
-              <div className="search-bar p-0 d-none d-lg-block ms-2">
-                <div id="search" className="menu-search mb-0">
-                  <form
-                    role="search"
-                    method="get"
-                    id="searchform"
-                    className="searchform"
-                  >
-                    <div>
-                      <input
-                        type="text"
-                        className="form-control border rounded-pill"
-                        name="s"
-                        id="s"
-                        placeholder="Search Keywords..."
-                      />
-                      <input type="submit" id="searchsubmit" value="Search" />
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-            <ul className="list-unstyled mb-0">
-              <li className="list-inline-item mb-0 ms-1">
-                <div className="dropdown dropdown-primary">
-                  <button
-                    type="button"
-                    className="btn btn-pills btn-soft-primary dropdown-toggle p-0"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <img
-                      src="../assets/images/client/05.jpg"
-                      className="avatar avatar-ex-small rounded-circle"
-                      alt=""
-                    />
-                  </button>
-                  <div
-                    className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3"
-                    style={{ minWidth: "200px" }}
-                  >
-                    <a
-                      className="dropdown-item text-dark"
-                      href="dr-profile.html"
-                    >
-                      <span className="mb-0 d-inline-block me-1">
-                        <i className="uil uil-setting align-middle h6"></i>
-                      </span>{" "}
-                      Profile Settings
-                    </a>
-                    <div className="dropdown-divider border-top"></div>
-                    <button
-                      className="dropdown-item text-dark"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <TopHeader />
 
         <div className="container-fluid">
           <div className="layout-specing">

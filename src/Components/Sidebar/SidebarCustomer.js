@@ -12,7 +12,7 @@ export default function SidebarCustomer() {
           style={{ height: "calc(100% - 60px)" }}
         >
           <div className="sidebar-brand">
-            <a href="index.html">
+            <Link to="/">
               <img
                 src="../assets/images/logo-dark.png"
                 height="22"
@@ -28,11 +28,11 @@ export default function SidebarCustomer() {
               <span className="sidebar-colored">
                 <img src="../assets/images/logo-light.png" height="22" alt="" />
               </span>
-            </a>
+            </Link>
           </div>
           <ul className="sidebar-menu">
             <li>
-              <Link to="/manage-appointment">
+              <Link to="/customer-appointment">
                 <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
                 Manage Bookings
               </Link>

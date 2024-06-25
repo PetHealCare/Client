@@ -32,7 +32,7 @@ export const DOCTOR_API = {
 };
 
 export const STAFF_API = {
-  MASTER: `${BASE_URL}/Staffs`,
+  MASTER: `${BASE_URL}/Staff`,
 };
 
 export const SERVICE_API = {

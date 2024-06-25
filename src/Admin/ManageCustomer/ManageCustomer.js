@@ -1,54 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { CUSTOMER_API } from "../../apiEndpoint";
 import { Link } from "react-router-dom";
-import { DOCTOR_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
-import { useNavigate } from "react-router-dom";
+import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import TopHeader from "../../Components/Sidebar/TopHeader";
 
-export default function ManageDoctor() {
-  const [doctors, setDoctors] = useState([]);
+export default function ManageCustomer() {
+  const [customers, setCustomers] = useState([]);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchDoctors();
+    fetchCustomers();
   }, []);
 
-  const fetchDoctors = async () => {
+  const fetchCustomers = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
+      const response = await fetch(CUSTOMER_API.MASTER);
       const data = await response.json();
-      setDoctors(data.data.items);
+      setCustomers(data);
     } catch (error) {
       console.log("Error fetching doctors:", error);
     }
-  };
-
-  const handleDeleteDoctor = async (doctorId) => {
-    try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        // Remove the deleted doctor from the local state
-        setDoctors(doctors.filter((doctor) => doctor.doctorId !== doctorId));
-        toast.success("Doctor deleted successfully!");
-        setTimeout(() => window.location.reload(), 1000);
-      } else {
-        console.error("Failed to delete doctor");
-      }
-    } catch (error) {
-      console.error("Error deleting doctor:", error);
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/signin"); // Redirect to sign-in page
   };
 
   return (
@@ -61,21 +37,21 @@ export default function ManageDoctor() {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-md-6">
-                <h5 className="mb-0">Doctors</h5>
+                <h5 className="mb-0">Customers</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
                       <Link to="/">PetHealthCare</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Doctors
+                      Customers
                     </li>
                   </ul>
                 </nav>
               </div>
               <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-                <Link to="/add-doctor" className="btn btn-primary">
-                  Add New Doctor
+                <Link to="/add-customer" className="btn btn-primary">
+                  Add New Customer
                 </Link>
               </div>
             </div>
@@ -95,7 +71,7 @@ export default function ManageDoctor() {
                           className="border-bottom p-3"
                           style={{ minWidth: "180px" }}
                         >
-                          Name
+                          Full Name
                         </th>
                         <th
                           className="border-bottom p-3"
@@ -107,7 +83,7 @@ export default function ManageDoctor() {
                           className="border-bottom p-3"
                           style={{ minWidth: "220px" }}
                         >
-                          Speciality
+                          Address
                         </th>
                         <th
                           className="border-bottom p-3"
@@ -116,41 +92,30 @@ export default function ManageDoctor() {
                       </tr>
                     </thead>
                     <tbody>
-                      {doctors.map((doctor, index) => (
+                      {customers.map((customer, index) => (
                         <tr key={index}>
                           <th className="p-3">{index + 1}</th>
                           <td className="p-3">
                             <Link
-                              to={`/update-doctor/${doctor.doctorId}`}
+                              to={`/update-customer/${customer.customerId}`}
                               className="text-dark"
                             >
                               <div className="d-flex align-items-center">
-                                <img
-                                  src="../assets/images/doctors/02.jpg"
-                                  className="avatar avatar-md-sm rounded-circle shadow"
-                                  alt=""
-                                />
-                                <span className="ms-2">{doctor.fullName}</span>
+                                <span className="ms-2">
+                                  {customer.fullName}
+                                </span>
                               </div>
                             </Link>
                           </td>
-                          <td className="p-3">{doctor.phoneNumber}</td>
-                          <td className="p-3">{doctor.speciality}</td>
+                          <td className="p-3">{customer.phoneNumber}</td>
+                          <td className="p-3">{customer.address}</td>
                           <td className="text-end p-3">
                             <Link
-                              to={`/update-doctor/${doctor.doctorId}`}
+                              to={`/update-customer/${customer.customerId}`}
                               className="btn btn-icon btn-pills btn-soft-primary"
                             >
                               <i className="uil uil-eye"></i>
                             </Link>
-                            <button
-                              className="btn btn-icon btn-pills btn-soft-danger"
-                              onClick={() =>
-                                handleDeleteDoctor(doctor.doctorId)
-                              }
-                            >
-                              <i className="uil uil-times-circle"></i>
-                            </button>
                           </td>
                         </tr>
                       ))}

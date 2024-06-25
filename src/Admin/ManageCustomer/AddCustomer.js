@@ -1,73 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Link } from "react-router-dom";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { CUSTOMER_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 
-export default function AddDoctor() {
+export default function AddCustomer() {
   const { user, logout } = useAuth();
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [speciality, setSpeciality] = useState("");
+  const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/signin"); // Redirect to sign-in page
-  };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    if (!fullName || !phoneNumber || !speciality || !email || !password) {
+    if (!fullName || !phoneNumber || !address || !email || !password) {
       toast.error("Please fill out all fields");
       return;
     }
 
     try {
-      const newDoctor = {
+      const newCustomer = {
         fullName,
         phoneNumber,
-        speciality,
+        address,
         email,
         password,
-        status: true,
       };
-      console.log("New Doctor Data:", newDoctor);
+      console.log("New Customer Data:", newCustomer);
 
-      const response = await fetch(DOCTOR_API.MASTER, {
+      const response = await fetch(CUSTOMER_API.SIGN_UP, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newDoctor),
+        body: JSON.stringify(newCustomer),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Doctor registered successfully!");
-        console.log("Doctor Registration Response:", result);
-        setTimeout(() => navigate("/manage-doctor"), 1000);
+        toast.success("Customer registered successfully!");
+        console.log("Customer Registration Response:", result);
+        setTimeout(() => navigate("/manage-customer"), 1000);
       } else {
         console.error(
-          "Error registering doctor:",
+          "Error registering customer:",
           response.status,
           response.statusText,
           result.message
         );
-        toast.error("Error registering doctor: " + result.message);
+        toast.error("Error registering customer: " + result.message);
       }
     } catch (error) {
-      console.error("Error registering doctor:", error);
-      toast.error("Error registering doctor: " + error.message);
+      console.error("Error registering customer:", error);
+      toast.error("Error registering customer: " + error.message);
     }
   };
 
@@ -84,24 +78,24 @@ export default function AddDoctor() {
         <div className="layout-specing">
           <div className="row">
             <div className="col-xl-9 col-md-6">
-              <h5 className="mb-0">Doctors</h5>
+              <h5 className="mb-0">Customers</h5>
               <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                 <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                   <li className="breadcrumb-item">
                     <a href="index.html">Doctris</a>
                   </li>
                   <li className="breadcrumb-item active" aria-current="page">
-                    Doctors
+                    Customers
                   </li>
                 </ul>
               </nav>
             </div>
             <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
               <Link to="/manage-doctor" className="btn btn-primary">
-                Back to Doctors
+                Back to Customers
               </Link>
             </div>
-            <h2>Add New Doctor</h2>
+            <h2>Add New Customer</h2>
             <div
               className="d-flex justify-content-center align-items-center"
               style={{ height: "40vh" }}
@@ -140,13 +134,13 @@ export default function AddDoctor() {
 
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Speciality</label>
+                          <label className="form-label">Address</label>
                           <input
-                            name="speciality"
+                            name="address"
                             type="text"
                             className="form-control"
-                            value={speciality}
-                            onChange={(e) => setSpeciality(e.target.value)}
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                           />
                         </div>
                       </div>
@@ -182,7 +176,7 @@ export default function AddDoctor() {
                     <div className="row">
                       <div className="col-md-12 text-end">
                         <button type="submit" className="btn btn-primary">
-                          Add New Doctor
+                          Add New Customer
                         </button>
                       </div>
                     </div>
