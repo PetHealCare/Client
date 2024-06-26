@@ -48,7 +48,7 @@ export default function Login() {
 
         if (decodedToken.Role === "Staff") {
           userDetails = await fetch(
-            `${STAFF_API.MASTER}/${decodedToken.UserId}`,
+            `${STAFF_API.GET_DETAILS}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -69,7 +69,7 @@ export default function Login() {
           ).then((res) => res.json());
         } else {
           userDetails = await fetch(
-            `${DOCTOR_API.MASTER}/${decodedToken.UserId}`,
+            `${DOCTOR_API.GET_DETAILS}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
