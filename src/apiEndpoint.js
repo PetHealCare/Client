@@ -29,10 +29,12 @@ export const BOOKING_API = {
 
 export const DOCTOR_API = {
   MASTER: `${BASE_URL}/doctor`,
+  GET_DETAILS: `${BASE_URL}/Doctor/user`,
 };
 
 export const STAFF_API = {
   MASTER: `${BASE_URL}/Staff`,
+  GET_DETAILS: `${BASE_URL}/Staff/user`,
 };
 
 export const SERVICE_API = {
