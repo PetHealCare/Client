@@ -2,83 +2,69 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, SCHEDULE_API } from "../../apiEndpoint";
+import { PET_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function ManageSchedule() {
+export default function ManagePet() {
   const { user, logout } = useAuth();
-  const [schedules, setSchedules] = useState([]);
+  const [pets, setPets] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      fetchSchedules();
+      fetchPets();
     }
-  }, [user, currentPage]); // Reload schedules when user or currentPage changes
+  }, [user, currentPage]);
 
-  const fetchSchedules = async () => {
+  const fetchPets = async () => {
     try {
       const response = await fetch(
-        `${SCHEDULE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
+        `${PET_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
-      if (Array.isArray(data)) {
-        // Fetch all doctor names in parallel
-        const doctorPromises = data.map(async (schedule) => {
-          const doctorName = await fetchDoctorName(schedule.doctorId);
-          return { ...schedule, doctorName };
-        });
-        const schedulesWithDoctors = await Promise.all(doctorPromises);
-        setSchedules(schedulesWithDoctors);
+      console.log("Pet data", data);
+      if (data.pets && Array.isArray(data.pets)) {
+        setPets(data.pets);
         setTotalPages(data.totalPages);
       } else {
-        console.error("Fetched data is not an array:", data);
-        setSchedules([]);
+        console.error("Fetched data is not valid:", data);
+        setPets([]);
         setTotalPages(1);
       }
     } catch (error) {
-      console.error("Error fetching schedules: ", error);
-      setSchedules([]);
+      console.error("Error fetching pets: ", error);
+      setPets([]);
       setTotalPages(1);
-      toast.error("Error fetching schedules");
+      toast.error("Error fetching pets");
     }
   };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/signin");
-  };
-
-  const fetchDoctorName = async (doctorId) => {
+  const handleDeletePet = async (petId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
+      const response = await fetch(`${PET_API.MASTER}/${petId}`, {
+        method: "DELETE",
+      });
 
-      return data.data.fullName;
+      if (response.ok) {
+        setPets(pets.filter((pet) => pet.petId !== petId));
+        toast.success("Pet deleted successfully!");
+      } else {
+        console.error("Failed to delete pet");
+      }
     } catch (error) {
-      console.error("Error fetching doctor name:", error);
-      return null;
+      console.error("Error deleting pet:", error);
     }
   };
-
-  const indexOfLastSchedule = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstSchedule = indexOfLastSchedule - ITEMS_PER_PAGE;
-  const currentSchedules = schedules.slice(
-    indexOfFirstSchedule,
-    indexOfLastSchedule
-  );
 
   return (
     <div className="page-wrapper doctris-theme toggled">
@@ -89,14 +75,14 @@ export default function ManageSchedule() {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-lg-6 col-md-4">
-                <h5 className="mb-0">Schedule</h5>
+                <h5 className="mb-0">Pets</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
-                      <a href="index.html">Doctris</a>
+                      <Link to="/">Doctris</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Schedule
+                      Pets
                     </li>
                   </ul>
                 </nav>
@@ -104,8 +90,8 @@ export default function ManageSchedule() {
               <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
                 <div className="justify-content-md-end">
                   <div className="d-grid">
-                    <Link to="/add-schedule" className="btn btn-primary">
-                      Add Schedule
+                    <Link to="/add-pet" className="btn btn-primary">
+                      Add New Pet
                     </Link>
                   </div>
                 </div>
@@ -128,49 +114,93 @@ export default function ManageSchedule() {
                           className="border-bottom p-3"
                           style={{ minWidth: "180px" }}
                         >
-                          Doctor
+                          Name
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "220px" }}
+                        >
+                          Species
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Status
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Customer
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Age
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Gender
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Generic
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Description
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Room No
+                          Actions
                         </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          Start Time
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          End Time
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          Slot Booking
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "150px" }}
-                        ></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {currentSchedules.map((schedule, index) => (
-                        <tr key={index}>
+                      {pets.map((pet, index) => (
+                        <tr key={pet.petId}>
                           <td className="p-3">
-                            {indexOfFirstSchedule + index + 1}
+                            {index + 1 + (currentPage - 1) * ITEMS_PER_PAGE}
                           </td>
-                          <td className="p-3">{schedule.doctorName}</td>
-                          <td className="p-3">{schedule.roomNo}</td>
-                          <td className="p-3">{schedule.startTime}</td>
-                          <td className="p-3">{schedule.endTime}</td>
-                          <td className="p-3">{schedule.slotBooking}</td>
+                          <td className="p-3">
+                            <Link
+                              to={`/update-pet/${pet.petId}`}
+                              className="text-dark"
+                            >
+                              {pet.name}
+                            </Link>
+                          </td>
+                          <td className="p-3">{pet.species}</td>
+                          <td className="p-3">{pet.status}</td>
+                          <td className="p-3">{pet.customerId}</td>
+                          <td className="p-3">{pet.age}</td>
+                          <td className="p-3">{pet.gender}</td>
+                          <td className="p-3">{pet.generic}</td>
+                          <td className="p-3">{pet.description}</td>
+                          <td className="text-end p-3">
+                            <Link
+                              to={`/update-pet/${pet.petId}`}
+                              className="btn btn-icon btn-pills btn-soft-primary"
+                            >
+                              <i className="uil uil-eye"></i>
+                            </Link>
+                            <button
+                              className="btn btn-icon btn-pills btn-soft-danger ms-2"
+                              onClick={() => handleDeletePet(pet.petId)}
+                            >
+                              <i className="uil uil-times-circle"></i>
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -183,9 +213,9 @@ export default function ManageSchedule() {
               <div className="col-12 mt-4">
                 <div className="d-md-flex align-items-center text-center justify-content-between">
                   <span className="text-muted me-3">
-                    Showing {indexOfFirstSchedule + 1} -{" "}
-                    {Math.min(indexOfLastSchedule, schedules.length)} out of{" "}
-                    {schedules.length}
+                    Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, pets.length)} out of{" "}
+                    {pets.length}
                   </span>
                   <ul className="pagination justify-content-center mb-0 mt-3 mt-sm-0">
                     <li

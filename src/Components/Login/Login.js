@@ -84,6 +84,8 @@ export default function Login() {
         console.log("Role", decodedToken.Role === "Staff");
         if (decodedToken.Role === "Staff") {
           navigate("/manage-appointment");
+        } else if (decodedToken.Role === "Doctor") {
+          navigate("/doctor-schedule");
         } else {
           navigate("/");
         }

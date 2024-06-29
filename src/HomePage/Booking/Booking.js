@@ -37,11 +37,16 @@ export default function Booking() {
     if (user) {
       fetchUserPets();
       fetchDoctors();
-      fetchServices();
     } else {
       navigate("/signin"); // Redirect to login if user is not authenticated
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (selectedDoctorId) {
+      fetchServices(selectedDoctorId);
+    }
+  }, [selectedDoctorId]);
 
   const fetchAvailableSchedules = async (doctorId, selectedDate) => {
     try {
@@ -78,11 +83,19 @@ export default function Booking() {
       toast.error("Error fetching schedules");
     }
   };
-  const fetchServices = async () => {
+
+  const fetchServices = async (doctorId) => {
     try {
-      const response = await fetch(SERVICE_API.MASTER);
+      console.log("DoctorID service", doctorId);
+      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
-      setServices(data || []);
+
+      if (data.data.serviceList) {
+        setServices(data.data.serviceList);
+        console.log("data serviceList", data.data.serviceList);
+      } else {
+        setServices([]);
+      }
     } catch (error) {
       console.error("Error fetching services:", error);
       toast.error("Error fetching services");
@@ -102,7 +115,7 @@ export default function Booking() {
 
   const fetchUserPets = async () => {
     try {
-      console.log("userId", user.customerId);
+      console.log("userID", user.customerId);
       const response = await fetch(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
@@ -132,9 +145,7 @@ export default function Booking() {
         petId: parseInt(selectedPetId, 10),
         customerId: user.customerId,
         doctorId: parseInt(selectedDoctorId, 10),
-        serviceIds: selectedServices.map((serviceId) =>
-          parseInt(serviceId, 10)
-        ),
+        serviceIds: selectedServices,
         note: note,
         scheduleId: parseInt(selectedSchedule, 10),
       };
@@ -185,7 +196,6 @@ export default function Booking() {
       fetchAvailableSchedules(selectedDoctorId, selectedDate);
     }
   };
-
   return (
     <div>
       <ToastContainer />

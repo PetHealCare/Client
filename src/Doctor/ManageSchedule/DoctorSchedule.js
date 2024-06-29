@@ -6,10 +6,11 @@ import { DOCTOR_API, SCHEDULE_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
 
 const ITEMS_PER_PAGE = 10;
 
-export default function ManageSchedule() {
+export default function DoctorSchedule() {
   const { user, logout } = useAuth();
   const [schedules, setSchedules] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +83,7 @@ export default function ManageSchedule() {
 
   return (
     <div className="page-wrapper doctris-theme toggled">
-      <Sidebar />
+      <SidebarDoctor />
       <main className="page-content bg-light">
         <TopHeader />
         <div className="container-fluid">
