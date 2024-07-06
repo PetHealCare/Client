@@ -67,12 +67,6 @@ export default function Sidebar() {
                 Service
               </Link>
             </li>
-            <li>
-              <Link to="/manage-pet">
-                <i className="uil uil-reddit-alien-alt me-2 d-inline-block"></i>{" "}
-                Manage Pet
-              </Link>
-            </li>
           </ul>
         </div>
         <ul className="sidebar-footer list-unstyled mb-0">
