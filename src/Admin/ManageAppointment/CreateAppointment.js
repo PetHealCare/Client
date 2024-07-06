@@ -40,7 +40,7 @@ export default function CreateAppointment() {
       fetchDoctors();
       fetchServices();
     } else {
-      navigate("/signin"); // Redirect to login if user is not authenticated
+      navigate("/signin");
     }
   }, [user, navigate]);
 
