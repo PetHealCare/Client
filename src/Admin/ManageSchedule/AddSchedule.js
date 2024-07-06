@@ -104,6 +104,7 @@ export default function AddSchedule() {
         startTime,
         endTime,
         slotBooking: 1,
+        status: true,
       };
 
       const response = await fetch(SCHEDULE_API.MASTER, {

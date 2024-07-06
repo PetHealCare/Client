@@ -48,57 +48,24 @@ export default function Booking() {
     }
   }, [selectedDoctorId]);
 
-  const fetchAvailableSchedules = async (doctorId, selectedDate) => {
-    try {
-      const response = await fetch(
-        `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      // Filter schedules by selected date and doctorId
-      const filteredSchedules = data.filter((schedule) => {
-        // Assuming schedule.startTime is in ISO string format
-        const scheduleDate = new Date(schedule.startTime)
-          .toISOString()
-          .split("T")[0]; // Extract date part in ISO format
-        const selectedDateString = new Date(selectedDate)
-          .toISOString()
-          .split("T")[0]; // Convert selectedDate to ISO format
-
-        return scheduleDate === selectedDateString && schedule.status === true;
-      });
-
-      setAvailableSchedules(filteredSchedules);
-
-      if (filteredSchedules.length === 0) {
-        setSelectedSchedule(""); // Clear selected schedule if no schedules available
-      } else {
-        setSelectedSchedule(filteredSchedules[0].scheduleId); // Set default to first available schedule
-      }
-    } catch (error) {
-      console.error("Error fetching schedules:", error);
-      toast.error("Error fetching schedules");
+  useEffect(() => {
+    if (selectedDoctorId || date) {
+      fetchAvailableSchedules(selectedDoctorId, date);
     }
-  };
+  }, [selectedDoctorId, date]);
 
   const fetchServices = async (doctorId) => {
     try {
-      console.log("DoctorID service", doctorId);
       const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
 
       if (data.data.serviceList) {
         setServices(data.data.serviceList);
-        console.log("data serviceList", data.data.serviceList);
       } else {
         setServices([]);
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      toast.error("Error fetching services");
     }
   };
 
@@ -109,13 +76,12 @@ export default function Booking() {
       setDoctors(data.data.items || []);
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      toast.error("Error fetching doctors");
+      // toast.error("Error fetching doctors");
     }
   };
 
   const fetchUserPets = async () => {
     try {
-      console.log("userID", user.customerId);
       const response = await fetch(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
@@ -124,7 +90,57 @@ export default function Booking() {
       setUserPets(data.data.items || []);
     } catch (error) {
       console.error("Error fetching user pets:", error);
-      // toast.error("Error fetching user pets");
+    }
+  };
+
+  const fetchAvailableSchedules = async (doctorId, selectedDate) => {
+    console.log("doctorId", doctorId);
+    try {
+      const response = await fetch(
+        `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      console.log("data", data);
+
+      const filteredSchedules = data.filter((schedule) => {
+        const scheduleDate = new Date(schedule.startTime)
+          .toISOString()
+          .split("T")[0];
+        const selectedDateString = new Date(selectedDate)
+          .toISOString()
+          .split("T")[0];
+
+        return scheduleDate === selectedDateString && schedule.status === true;
+      });
+      console.log("filter schedule", filteredSchedules);
+
+      setAvailableSchedules(filteredSchedules);
+
+      if (filteredSchedules.length === 0) {
+        setSelectedSchedule("");
+      } else {
+        setSelectedSchedule(filteredSchedules[0].scheduleId);
+      }
+
+      const uniqueDoctorIds = Array.from(
+        new Set(filteredSchedules.map((schedule) => schedule.doctorId))
+      );
+
+      const doctorsData = await Promise.all(
+        uniqueDoctorIds.map(async (doctorId) => {
+          const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+          const data = await response.json();
+          return data.data;
+        })
+      );
+
+      setDoctors(doctorsData);
+    } catch (error) {
+      console.error("Error fetching schedules:", error);
     }
   };
 
@@ -195,6 +211,14 @@ export default function Booking() {
     if (selectedDoctorId) {
       fetchAvailableSchedules(selectedDoctorId, selectedDate);
     }
+  };
+
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
   return (
     <div>
@@ -360,6 +384,22 @@ export default function Booking() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
+                            <label className="form-label" htmlFor="input-date">
+                              Date
+                            </label>
+                            <input
+                              name="date"
+                              type="date"
+                              className="form-control"
+                              id="input-date"
+                              value={date}
+                              min={getTodayDate()}
+                              onChange={handleDateChange}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
                             <label
                               className="form-label"
                               htmlFor="select-doctor"
@@ -388,21 +428,7 @@ export default function Booking() {
                             </select>
                           </div>
                         </div>
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label" htmlFor="input-date">
-                              Date
-                            </label>
-                            <input
-                              name="date"
-                              type="date"
-                              className="form-control"
-                              id="input-date"
-                              value={date}
-                              onChange={handleDateChange}
-                            />
-                          </div>
-                        </div>
+
                         <div className="col-md-6">
                           <div className="mb-3">
                             <label className="form-label">

@@ -28,9 +28,9 @@ export default function ManagePet() {
         `${PET_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
-      console.log("Pet data", data);
-      if (data.pets && Array.isArray(data.pets)) {
-        setPets(data.pets);
+      console.log("Pet data", data.data.items);
+      if (data.data.items && Array.isArray(data.data.items)) {
+        setPets(data.data.items);
         setTotalPages(data.totalPages);
       } else {
         console.error("Fetched data is not valid:", data);
@@ -50,19 +50,24 @@ export default function ManagePet() {
   };
 
   const handleDeletePet = async (petId) => {
-    try {
-      const response = await fetch(`${PET_API.MASTER}/${petId}`, {
-        method: "DELETE",
-      });
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this pet?"
+    );
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`${PET_API.MASTER}/${petId}`, {
+          method: "DELETE",
+        });
 
-      if (response.ok) {
-        setPets(pets.filter((pet) => pet.petId !== petId));
-        toast.success("Pet deleted successfully!");
-      } else {
-        console.error("Failed to delete pet");
+        if (response.ok) {
+          setPets(pets.filter((pet) => pet.petId !== petId));
+          toast.success("Pet deleted successfully!");
+        } else {
+          console.error("Failed to delete pet");
+        }
+      } catch (error) {
+        console.error("Error deleting pet:", error);
       }
-    } catch (error) {
-      console.error("Error deleting pet:", error);
     }
   };
 
@@ -181,10 +186,14 @@ export default function ManagePet() {
                             </Link>
                           </td>
                           <td className="p-3">{pet.species}</td>
-                          <td className="p-3">{pet.status}</td>
+                          <td className="p-3">
+                            {pet.status ? "Active" : "Inactive"}
+                          </td>
                           <td className="p-3">{pet.customerId}</td>
                           <td className="p-3">{pet.age}</td>
-                          <td className="p-3">{pet.gender}</td>
+                          <td className="p-3">
+                            {pet.gender ? "Male" : "Female"}
+                          </td>
                           <td className="p-3">{pet.generic}</td>
                           <td className="p-3">{pet.description}</td>
                           <td className="text-end p-3">

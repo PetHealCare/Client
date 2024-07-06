@@ -89,6 +89,8 @@ export default function CreateAppointment() {
         return scheduleDate === selectedDateString && schedule.status === true;
       });
 
+      console.log("filter schedule: ", filteredSchedules, data);
+
       setAvailableSchedules(filteredSchedules);
 
       if (filteredSchedules.length === 0) {
@@ -247,7 +249,7 @@ export default function CreateAppointment() {
                         <Select
                           options={customers.map((customer) => ({
                             value: customer.customerId,
-                            label: customer.name,
+                            label: customer.fullName,
                           }))}
                           onChange={(option) =>
                             handleCustomerChange(option.value)
@@ -303,21 +305,6 @@ export default function CreateAppointment() {
 
                     <div className="col-md-6">
                       <div className="mb-3">
-                        <label className="form-label">Services</label>
-                        <Select
-                          options={services.map((service) => ({
-                            value: service.serviceId,
-                            label: `${service.name} - $${service.price}`,
-                          }))}
-                          isMulti
-                          onChange={handleServiceChange}
-                          isSearchable
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="mb-3">
                         <label className="form-label">Schedule</label>
                         <Select
                           options={availableSchedules.map((schedule) => ({
@@ -344,6 +331,21 @@ export default function CreateAppointment() {
                                 schedule.scheduleId === selectedSchedule
                             ) || ""
                           }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Services</label>
+                        <Select
+                          options={services.map((service) => ({
+                            value: service.serviceId,
+                            label: `${service.name} - $${service.price}`,
+                          }))}
+                          isMulti
+                          onChange={handleServiceChange}
+                          isSearchable
                         />
                       </div>
                     </div>
