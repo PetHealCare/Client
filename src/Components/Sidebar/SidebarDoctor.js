@@ -1,7 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../Login/Authen";
+import { useNavigate } from "react-router-dom";
 
-export default function Sidebar() {
+export default function SidebarDoctor() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/signin"); // Redirect to sign-in page
+  };
+
+  console.log("userdoctor", user);
   return (
     <div>
       {/* Sidebar */}
@@ -12,7 +23,7 @@ export default function Sidebar() {
           style={{ height: "calc(100% - 60px)" }}
         >
           <div className="sidebar-brand">
-            <a href="index.html">
+            <Link to="/">
               <img
                 src="../assets/images/logo-dark.png"
                 height="22"
@@ -28,51 +39,28 @@ export default function Sidebar() {
               <span className="sidebar-colored">
                 <img src="../assets/images/logo-light.png" height="22" alt="" />
               </span>
-            </a>
+            </Link>
           </div>
           <ul className="sidebar-menu">
+            {" "}
             <li>
-              <a href="index.html">
-                <i className="uil uil-dashboard me-2 d-inline-block"></i>
-                Dashboard
-              </a>
+              <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
+              {user.fullName}
             </li>
             <li>
-              <Link to="/manage-appointment">
-                <i className="uil uil-bookmark-full me-2 d-inline-block"></i>{" "}
-                Manage Appointment
+              <Link to="/doctor-schedule">
+                <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
+                Manage Schedule
               </Link>
             </li>
             <li>
-              <Link to="/manage-doctor">
-                <i className="uil uil-stethoscope me-2 d-inline-block"></i>
-                Manage Doctor
-              </Link>
-            </li>
-            <li>
-              <Link to="/manage-schedule">
-                <i className="uil uil-schedule me-2 d-inline-block"></i> Manage
-                Schedule
-              </Link>
-            </li>
-            <li>
-              <Link to="/manage-customer">
-                <i className="uil uil-user me-2 d-inline-block"></i> Manage
-                Customer
-              </Link>
-            </li>
-            <li>
-              <Link to="/manage-service">
-                <i className="uil uil-server me-2 d-inline-block"></i> Manage
+              <Link to="/customer-service">
+                <i className="uil uil-user me-2 d-inline-block"></i>Manage
                 Service
               </Link>
             </li>
-            <li>
-              <Link to="/manage-pet">
-                <i className="uil uil-reddit-alien-alt me-2 d-inline-block"></i>{" "}
-                Manage Pet
-              </Link>
-            </li>
+            {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
+                        <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}
           </ul>
         </div>
         <ul className="sidebar-footer list-unstyled mb-0">
