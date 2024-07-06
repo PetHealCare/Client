@@ -48,7 +48,7 @@ export default function CustomerBooking() {
                 ...appointment,
                 customerName: customerResponse.fullName,
                 customerPhoneNumber: customerResponse.phoneNumber,
-                petName: petResponse.name,
+                petName: petResponse.data.name,
               };
             } catch (error) {
               console.error("Error fetching details for appointment:", error);

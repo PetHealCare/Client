@@ -47,7 +47,8 @@ export default function Login() {
         let userDetails;
 
         if (decodedToken.Role === "Staff") {
-          userDetails = await fetch(STAFF_API.GET_DETAILS(decodedToken.UserId),
+          userDetails = await fetch(
+            `${STAFF_API.GET_DETAILS}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -58,7 +59,8 @@ export default function Login() {
             return res.json();
           });
         } else if (decodedToken.Role === "Customer") {
-          userDetails = await fetch(CUSTOMER_API.GET_DETAILS(decodedToken.UserId),
+          userDetails = await fetch(
+            `${CUSTOMER_API.GET_DETAILS}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -66,7 +68,8 @@ export default function Login() {
             }
           ).then((res) => res.json());
         } else {
-          userDetails = await fetch(DOCTOR_API.GET_DETAILS(decodedToken.UserId),
+          userDetails = await fetch(
+            `${DOCTOR_API.GET_DETAILS}/${decodedToken.UserId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -81,6 +84,8 @@ export default function Login() {
         console.log("Role", decodedToken.Role === "Staff");
         if (decodedToken.Role === "Staff") {
           navigate("/manage-appointment");
+        } else if (decodedToken.Role === "Doctor") {
+          navigate("/doctor-schedule");
         } else {
           navigate("/");
         }
