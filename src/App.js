@@ -27,9 +27,6 @@ import AddCustomer from "./Admin/ManageCustomer/AddCustomer";
 import ManageService from "./Admin/ManageService/ManageService";
 import UpdateService from "./Admin/ManageService/UpdateService";
 import AddService from "./Admin/ManageService/AddService";
-import ManagePet from "./Admin/ManagePet/ManagePet";
-import CreateAppointment from "./Admin/ManageAppointment/CreateAppointment";
-import DoctorSchedule from "./Doctor/ManageSchedule/DoctorSchedule";
 
 function App() {
   return (
@@ -55,11 +52,6 @@ function App() {
               exact
               path="/manage-appointment"
               element={<ManageAppointment />}
-            />
-            <Route
-              exact
-              path="/create-appointment"
-              element={<CreateAppointment />}
             />
             <Route exact path="/register-pet" element={<RegisterPet />} />
             <Route exact path="/add-doctor" element={<AddDoctor />} />
@@ -88,8 +80,6 @@ function App() {
             />
 
             <Route exact path="/add-service" element={<AddService />} />
-            <Route exact path="/manage-pet" element={<ManagePet />} />
-            <Route exact path="/doctor-schedule" element={<DoctorSchedule />} />
           </Routes>
         </Router>
       </AuthProvider>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, SCHEDULE_API } from "../../apiEndpoint";
+import { SCHEDULE_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
@@ -28,14 +28,8 @@ export default function ManageSchedule() {
         `${SCHEDULE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
-      if (Array.isArray(data)) {
-        // Fetch all doctor names in parallel
-        const doctorPromises = data.map(async (schedule) => {
-          const doctorName = await fetchDoctorName(schedule.doctorId);
-          return { ...schedule, doctorName };
-        });
-        const schedulesWithDoctors = await Promise.all(doctorPromises);
-        setSchedules(schedulesWithDoctors);
+      if (Array.isArray(data.items)) {
+        setSchedules(data.items);
         setTotalPages(data.totalPages);
       } else {
         console.error("Fetched data is not an array:", data);
@@ -49,6 +43,7 @@ export default function ManageSchedule() {
       toast.error("Error fetching schedules");
     }
   };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -56,21 +51,6 @@ export default function ManageSchedule() {
   const handleLogout = () => {
     logout();
     navigate("/signin");
-  };
-
-  const fetchDoctorName = async (doctorId) => {
-    try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      return data.data.fullName;
-    } catch (error) {
-      console.error("Error fetching doctor name:", error);
-      return null;
-    }
   };
 
   const indexOfLastSchedule = currentPage * ITEMS_PER_PAGE;

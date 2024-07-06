@@ -73,6 +73,7 @@ export default function ManageAppointment() {
       return data;
     } catch (error) {
       console.error("Error fetching pets:", error);
+      toast.error("Error fetching pets");
       throw error;
     }
   };
@@ -140,12 +141,14 @@ export default function ManageAppointment() {
                       {/* <!--end col--> */}
                       <div className="col-sm-12 col-md-7 mt-4 mt-sm-0">
                         <div className="d-grid">
-                          <Link
-                            to="/create-appointment"
+                          <a
+                            href="#"
                             className="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#appointmentform"
                           >
                             Appointment
-                          </Link>
+                          </a>
                         </div>
                       </div>
                       {/* <!--end col--> */}
