@@ -120,6 +120,7 @@ export default function CreateAppointment() {
           return data.data;
         })
       );
+      console.log("doctor data:", doctorsData);
       setDoctors(doctorsData);
     } catch (error) {
       console.error("Error fetching schedules:", error);
@@ -326,7 +327,9 @@ export default function CreateAppointment() {
 
                     <div className="col-md-6">
                       <div className="mb-3">
-                        <label className="form-label">Doctor</label>
+                        <label className="form-label" htmlFor="select-doctor">
+                          Select Doctor
+                        </label>
                         <select
                           className="form-select form-control"
                           id="select-doctor"
@@ -347,7 +350,6 @@ export default function CreateAppointment() {
                         </select>
                       </div>
                     </div>
-
                     <div className="col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Schedule</label>

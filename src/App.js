@@ -30,6 +30,7 @@ import AddService from "./Admin/ManageService/AddService";
 import ManagePet from "./Admin/ManagePet/ManagePet";
 import CreateAppointment from "./Admin/ManageAppointment/CreateAppointment";
 import DoctorSchedule from "./Doctor/ManageSchedule/DoctorSchedule";
+import AddNewPet from "./Admin/ManagePet/AddNewPet";
 
 function App() {
   return (
@@ -89,6 +90,7 @@ function App() {
 
             <Route exact path="/add-service" element={<AddService />} />
             <Route exact path="/manage-pet" element={<ManagePet />} />
+            <Route exact path="/add-pet" element={<AddNewPet />} />
             <Route exact path="/doctor-schedule" element={<DoctorSchedule />} />
           </Routes>
         </Router>
