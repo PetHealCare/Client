@@ -44,6 +44,18 @@ export default function CreateAppointment() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    if (selectedDoctorId) {
+      fetchServices(selectedDoctorId);
+    }
+  }, [selectedDoctorId]);
+
+  useEffect(() => {
+    if (selectedDoctorId || date) {
+      fetchAvailableSchedules(selectedDoctorId, date);
+    }
+  }, [selectedDoctorId, date]);
+
   const fetchCustomers = async () => {
     try {
       const response = await fetch(`${CUSTOMER_API.MASTER}`);
@@ -51,7 +63,7 @@ export default function CreateAppointment() {
       setCustomers(data || []);
     } catch (error) {
       console.error("Error fetching customers:", error);
-      toast.error("Error fetching customers");
+      // toast.error("Error fetching customers");
     }
   };
 
@@ -64,7 +76,7 @@ export default function CreateAppointment() {
       setCustomerPets(data.data.items || []);
     } catch (error) {
       console.error("Error fetching customer pets:", error);
-      toast.error("Error fetching customer pets");
+      toast.error("Customer doesn't register Pet");
     }
   };
 
@@ -89,8 +101,6 @@ export default function CreateAppointment() {
         return scheduleDate === selectedDateString && schedule.status === true;
       });
 
-      console.log("filter schedule: ", filteredSchedules, data);
-
       setAvailableSchedules(filteredSchedules);
 
       if (filteredSchedules.length === 0) {
@@ -98,20 +108,37 @@ export default function CreateAppointment() {
       } else {
         setSelectedSchedule(filteredSchedules[0].scheduleId);
       }
+
+      const uniqueDoctorIds = Array.from(
+        new Set(filteredSchedules.map((schedule) => schedule.doctorId))
+      );
+
+      const doctorsData = await Promise.all(
+        uniqueDoctorIds.map(async (doctorId) => {
+          const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+          const data = await response.json();
+          return data.data;
+        })
+      );
+      setDoctors(doctorsData);
     } catch (error) {
       console.error("Error fetching schedules:", error);
-      toast.error("Error fetching schedules");
+      // toast.error("Error fetching schedules");
     }
   };
 
-  const fetchServices = async () => {
+  const fetchServices = async (doctorId) => {
     try {
-      const response = await fetch(SERVICE_API.MASTER);
+      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
-      setServices(data || []);
+
+      if (data.data.serviceList) {
+        setServices(data.data.serviceList);
+      } else {
+        setServices([]);
+      }
     } catch (error) {
       console.error("Error fetching services:", error);
-      toast.error("Error fetching services");
     }
   };
 
@@ -122,7 +149,7 @@ export default function CreateAppointment() {
       setDoctors(data.data.items || []);
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      toast.error("Error fetching doctors");
+      // toast.error("Error fetching doctors");
     }
   };
 
@@ -162,6 +189,7 @@ export default function CreateAppointment() {
       if (response.ok) {
         toast.success("Booking successful!");
         setTimeout(() => window.location.reload(), 2000);
+        navigate("/manage-appointment");
       } else {
         const errorText = await response.text();
         console.error("Error booking appointment:", response.status, errorText);
@@ -169,7 +197,7 @@ export default function CreateAppointment() {
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
-      toast.error("Error booking appointment");
+      // toast.error("Error booking appointment");
     }
   };
 
@@ -199,6 +227,14 @@ export default function CreateAppointment() {
   const handleCustomerChange = (customerId) => {
     setSelectedCustomerId(customerId);
     fetchCustomerPets(customerId);
+  };
+
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -240,7 +276,7 @@ export default function CreateAppointment() {
             style={{ height: "40vh" }}
           >
             <div className="rounded shadow mt-4">
-              <div className="p-4 " style={{ marginTop: "80px" }}>
+              <div className="p-4 " style={{ marginTop: "150px" }}>
                 <form onSubmit={handleAppointmentSubmit}>
                   <div className="row">
                     <div className="col-md-6">
@@ -281,6 +317,7 @@ export default function CreateAppointment() {
                           name="date"
                           className="form-control"
                           value={date}
+                          min={getTodayDate()}
                           onChange={handleDateChange}
                           required
                         />
@@ -290,48 +327,55 @@ export default function CreateAppointment() {
                     <div className="col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Doctor</label>
-                        <Select
-                          options={doctors.map((doctor) => ({
-                            value: doctor.doctorId,
-                            label: doctor.fullName,
-                          }))}
-                          onChange={(option) =>
-                            setSelectedDoctorId(option.value)
-                          }
-                          isSearchable
-                        />
+                        <select
+                          className="form-select form-control"
+                          id="select-doctor"
+                          value={selectedDoctorId}
+                          onChange={(e) => setSelectedDoctorId(e.target.value)}
+                        >
+                          <option value="" disabled>
+                            Select Doctor
+                          </option>
+                          {doctors.map((doctor) => (
+                            <option
+                              key={doctor.doctorId}
+                              value={doctor.doctorId}
+                            >
+                              {doctor.fullName} - {doctor.speciality}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
                     <div className="col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Schedule</label>
-                        <Select
-                          options={availableSchedules.map((schedule) => ({
-                            value: schedule.scheduleId,
-                            label: `${new Date(
-                              schedule.startTime
-                            ).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })} - ${new Date(
-                              schedule.endTime
-                            ).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}`,
-                          }))}
-                          onChange={(option) =>
-                            setSelectedSchedule(option.value)
-                          }
-                          isSearchable
-                          value={
-                            availableSchedules.find(
-                              (schedule) =>
-                                schedule.scheduleId === selectedSchedule
-                            ) || ""
-                          }
-                        />
+                        <select
+                          className="form-select form-control"
+                          value={selectedSchedule}
+                          onChange={(e) => setSelectedSchedule(e.target.value)}
+                        >
+                          <option
+                            value=""
+                            disabled
+                            style={{ textAlign: "center" }}
+                          >
+                            Select a schedule
+                          </option>
+                          {availableSchedules.map((schedule) => (
+                            <option
+                              key={schedule.scheduleId}
+                              value={schedule.scheduleId}
+                            >
+                              {new Date(
+                                schedule.startTime
+                              ).toLocaleTimeString()}{" "}
+                              -{" "}
+                              {new Date(schedule.endTime).toLocaleTimeString()}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
@@ -341,11 +385,17 @@ export default function CreateAppointment() {
                         <Select
                           options={services.map((service) => ({
                             value: service.serviceId,
-                            label: `${service.name} - $${service.price}`,
+                            label: `${service.serviceName} - $${service.price}`,
+                          }))}
+                          value={selectedServices.map((serviceId) => ({
+                            value: serviceId,
+                            label: services.find(
+                              (service) => service.serviceId === serviceId
+                            )?.serviceName,
                           }))}
                           isMulti
                           onChange={handleServiceChange}
-                          isSearchable
+                          maxMenuHeight={150} // Set maximum height to limit number of visible options
                         />
                       </div>
                     </div>
@@ -361,6 +411,12 @@ export default function CreateAppointment() {
                           onChange={(e) => setNote(e.target.value)}
                         />
                       </div>
+                    </div>
+
+                    <div className="mt-3" style={{ textAlign: "end" }}>
+                      <label className="form-label">
+                        Total Price: ${totalPrice}
+                      </label>
                     </div>
 
                     <div className="col-md-12 text-end">
