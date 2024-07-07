@@ -163,86 +163,109 @@ export default function AddPet() {
         </div>
         <div className="layout-specing">
           <div className="row">
-            <div className="col-xl-9">
-              <h2>Add New Pet</h2>
-              <div className="rounded shadow mt-4">
-                <div className="p-4">
-                  <form onSubmit={handleFormSubmit}>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Pet Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Species</label>
-                        <select
-                          className="form-select"
-                          value={species}
-                          onChange={(e) => setSpecies(e.target.value)}
-                        >
-                          <option value="">Select Species</option>
-                          <option value="dog">Dog</option>
-                          <option value="cat">Cat</option>
-                          <option value="bird">Bird</option>
-                          <option value="parrot">Parrot</option>
-                          <option value="rabbit">Rabbit</option>
-                          <option value="hamster">Hamster</option>
-                          <option value="another">Another</option>
-                        </select>
-                      </div>
+            <div className="col-xl-9 col-md-6">
+              <h5 className="mb-0">Register New Pet</h5>
+              <nav aria-label="breadcrumb" className="d-inline-block mt-2">
+                <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
+                  <li className="breadcrumb-item">
+                    <a href="index.html">Doctris</a>
+                  </li>
+                  <li className="breadcrumb-item active" aria-current="page">
+                    Register New Pet
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
+              <Link to="/customer-pet" className="btn btn-primary">
+                Back to Pets
+              </Link>
+            </div>
+          </div>
+
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "40vh", marginTop: "100px" }}
+          >
+            <div className="rounded shadow mt-4">
+              <div className="p-4" style={{ width: "700px" }}>
+                <form onSubmit={handleFormSubmit}>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Pet Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
                     </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Age</label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          value={age}
-                          onChange={(e) => setAge(e.target.value)}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Gender</label>
-                        <select
-                          className="form-select"
-                          value={gender}
-                          onChange={(e) => setGender(e.target.value)}
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="true">Male</option>
-                          <option value="false">Female</option>
-                        </select>
-                      </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Species</label>
+                      <select
+                        className="form-select"
+                        value={species}
+                        onChange={(e) => setSpecies(e.target.value)}
+                      >
+                        <option value="">Select Species</option>
+                        <option value="dog">Dog</option>
+                        <option value="cat">Cat</option>
+                        <option value="bird">Bird</option>
+                        <option value="parrot">Parrot</option>
+                        <option value="rabbit">Rabbit</option>
+                        <option value="hamster">Hamster</option>
+                        <option value="another">Another</option>
+                      </select>
                     </div>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Generic</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={generic}
-                          onChange={(e) => setGeneric(e.target.value)}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                        ></textarea>
-                      </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Age</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                      />
                     </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Gender</label>
+                      <select
+                        className="form-select"
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="true">Male</option>
+                        <option value="false">Female</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Generic</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={generic}
+                        onChange={(e) => setGeneric(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Description</label>
+                      <textarea
+                        className="form-control"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div className="col-md-12 text-end">
                     <button type="submit" className="btn btn-primary">
                       Add New Pet
                     </button>
-                  </form>
-                </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

@@ -227,29 +227,6 @@ export default function CustomerBooking() {
                   </ul>
                 </nav>
               </div>
-              <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
-                <div className="justify-content-md-end">
-                  <form>
-                    <div className="row justify-content-between align-items-center">
-                      <div className="col-sm-12 col-md-5">
-                        <div className="mb-0 position-relative"></div>
-                      </div>
-                      <div className="col-sm-12 col-md-7 mt-4 mt-sm-0">
-                        <div className="d-grid">
-                          <a
-                            href="#"
-                            className="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#appointmentform"
-                          >
-                            Appointment
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
             </div>
 
             <div className="row">
@@ -289,10 +266,6 @@ export default function CustomerBooking() {
                         >
                           Note
                         </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "150px" }}
-                        ></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -308,24 +281,6 @@ export default function CustomerBooking() {
                           <td className="p-3">{appointment.petName}</td>
                           <td className="p-3">{appointment.bookingDate}</td>
                           <td className="p-3">{appointment.note}</td>
-                          <td className="text-end p-3">
-                            <a
-                              href="#"
-                              className="btn btn-icon btn-pills btn-soft-success"
-                              data-bs-toggle="modal"
-                              data-bs-target="#acceptappointment"
-                            >
-                              <i className="uil uil-check-circle"></i>
-                            </a>
-                            <a
-                              href="#"
-                              className="btn btn-icon btn-pills btn-soft-danger"
-                              data-bs-toggle="modal"
-                              data-bs-target="#cancelappointment"
-                            >
-                              <i className="uil uil-times-circle"></i>
-                            </a>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
