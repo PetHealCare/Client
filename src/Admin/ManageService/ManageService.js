@@ -49,22 +49,28 @@ export default function ManageSchedule() {
   };
 
   const handleDeleteService = async (serviceId) => {
-    try {
-      const response = await fetch(`${SERVICE_API.MASTER}/${serviceId}`, {
-        method: "DELETE",
-      });
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this service?"
+    );
 
-      if (response.ok) {
-        setServices(
-          services.filter((service) => service.serviceId !== serviceId)
-        );
-        toast.success("Service deleted successfully!");
-        setTimeout(() => window.location.reload(), 1000); // Optional: Refresh page after deletion
-      } else {
-        console.error("Failed to delete service");
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`${SERVICE_API.MASTER}/${serviceId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setServices(
+            services.filter((service) => service.serviceId !== serviceId)
+          );
+          toast.success("Service deleted successfully!");
+          setTimeout(() => window.location.reload(), 1000); // Optional: Refresh page after deletion
+        } else {
+          console.error("Failed to delete service");
+        }
+      } catch (error) {
+        console.error("Error deleting service:", error);
       }
-    } catch (error) {
-      console.error("Error deleting service:", error);
     }
   };
 

@@ -94,7 +94,6 @@ export default function Booking() {
   };
 
   const fetchAvailableSchedules = async (doctorId, selectedDate) => {
-    console.log("doctorId", doctorId);
     try {
       const response = await fetch(
         `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
@@ -103,8 +102,6 @@ export default function Booking() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-
-      console.log("data", data);
 
       const filteredSchedules = data.filter((schedule) => {
         const scheduleDate = new Date(schedule.startTime)
@@ -116,7 +113,6 @@ export default function Booking() {
 
         return scheduleDate === selectedDateString && schedule.status === true;
       });
-      console.log("filter schedule", filteredSchedules);
 
       setAvailableSchedules(filteredSchedules);
 
@@ -137,10 +133,11 @@ export default function Booking() {
           return data.data;
         })
       );
-
+      console.log("doctor data:", doctorsData);
       setDoctors(doctorsData);
     } catch (error) {
       console.error("Error fetching schedules:", error);
+      // toast.error("Error fetching schedules");
     }
   };
 
