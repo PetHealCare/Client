@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 import { useAuth } from "../../Components/Login/Authen";
 import { PET_API } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function ManagePet() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function ManagePet() {
 
   const fetchUserPets = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
@@ -215,14 +216,22 @@ export default function ManagePet() {
                         <td className="p-3">{pet.generic}</td>
                         <td className="p-3">{pet.description}</td>
                         <td className="p-3">
-                          <a
+                          <Link
+                            to={`/update-pet-cust/${pet.petId}`}
+                            className="btn btn-icon btn-pills btn-soft-primary"
+                          >
+                            <i className="uil uil-eye"></i>
+                          </Link>
+                        </td>
+                        <td className="p-3">
+                          {/* <a
                             href="#"
                             className="btn btn-icon btn-pills btn-soft-danger"
                             data-bs-toggle="modal"
                             data-bs-target="#deleteDoctor"
                           >
                             <i className="uil uil-times-circle"></i>
-                          </a>
+                          </a> */}
                         </td>
                       </tr>
                     ))}

@@ -15,6 +15,7 @@ import {
   SERVICE_API,
 } from "../../apiEndpoint";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function CreateAppointment() {
   const { user, logout } = useAuth();
@@ -58,7 +59,7 @@ export default function CreateAppointment() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch(`${CUSTOMER_API.MASTER}`);
+      const response = await fetchWithAuth(`${CUSTOMER_API.MASTER}`);
       const data = await response.json();
       setCustomers(data || []);
     } catch (error) {
@@ -69,7 +70,7 @@ export default function CreateAppointment() {
 
   const fetchCustomerPets = async (customerId) => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${PET_API.MASTER}?CustomerId=${customerId}`
       );
       const data = await response.json();
@@ -82,7 +83,7 @@ export default function CreateAppointment() {
 
   const fetchAvailableSchedules = async (doctorId, selectedDate) => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
       );
       if (!response.ok) {
@@ -115,7 +116,9 @@ export default function CreateAppointment() {
 
       const doctorsData = await Promise.all(
         uniqueDoctorIds.map(async (doctorId) => {
-          const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+          const response = await fetchWithAuth(
+            `${DOCTOR_API.MASTER}/${doctorId}`
+          );
           const data = await response.json();
           return data.data;
         })
@@ -130,7 +133,7 @@ export default function CreateAppointment() {
 
   const fetchServices = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
 
       if (data.data.serviceList) {
@@ -145,7 +148,7 @@ export default function CreateAppointment() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
+      const response = await fetchWithAuth(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items || []);
     } catch (error) {
@@ -179,7 +182,7 @@ export default function CreateAppointment() {
         scheduleId: parseInt(selectedSchedule, 10),
       };
 
-      const response = await fetch(BOOKING_API.CREATE_BOOKING_SERVICE, {
+      const response = await fetchWithAuth(BOOKING_API.CREATE_BOOKING_SERVICE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

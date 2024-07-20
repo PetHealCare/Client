@@ -7,6 +7,7 @@ import Sidebar from "../../Components/Sidebar/Sidebar";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function ManageCustomer() {
   const [customers, setCustomers] = useState([]);
@@ -19,7 +20,7 @@ export default function ManageCustomer() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch(CUSTOMER_API.MASTER);
+      const response = await fetchWithAuth(CUSTOMER_API.MASTER);
       const data = await response.json();
       setCustomers(data);
     } catch (error) {

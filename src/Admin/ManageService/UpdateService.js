@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function UpdateService() {
   const { id } = useParams();
@@ -25,7 +26,9 @@ export default function UpdateService() {
 
   const fetchDoctorDetails = async (serviceId) => {
     try {
-      const response = await fetch(`${SERVICE_API.MASTER}/${serviceId}`);
+      const response = await fetchWithAuth(
+        `${SERVICE_API.MASTER}/${serviceId}`
+      );
       const data = await response.json();
       const serviceData = data;
       setService(serviceData);
@@ -49,7 +52,7 @@ export default function UpdateService() {
     };
 
     try {
-      const response = await fetch(`${SERVICE_API.MASTER}`, {
+      const response = await fetchWithAuth(`${SERVICE_API.MASTER}`, {
         method: "PUT",
         headers: {
           "Content-Type":

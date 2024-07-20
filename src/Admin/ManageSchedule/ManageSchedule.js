@@ -6,6 +6,7 @@ import { DOCTOR_API, SCHEDULE_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,7 +25,7 @@ export default function ManageSchedule() {
 
   const fetchSchedules = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SCHEDULE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
@@ -60,7 +61,7 @@ export default function ManageSchedule() {
 
   const fetchDoctorName = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

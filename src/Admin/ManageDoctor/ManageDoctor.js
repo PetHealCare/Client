@@ -7,6 +7,7 @@ import Sidebar from "../../Components/Sidebar/Sidebar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function ManageDoctor() {
   const [doctors, setDoctors] = useState([]);
@@ -19,7 +20,7 @@ export default function ManageDoctor() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
+      const response = await fetchWithAuth(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items);
     } catch (error) {
@@ -29,7 +30,7 @@ export default function ManageDoctor() {
 
   const handleDeleteDoctor = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`, {
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`, {
         method: "DELETE",
       });
 

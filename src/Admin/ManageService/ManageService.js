@@ -6,6 +6,7 @@ import { SERVICE_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,7 +25,7 @@ export default function ManageSchedule() {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SERVICE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
@@ -55,9 +56,12 @@ export default function ManageSchedule() {
 
     if (confirmDelete) {
       try {
-        const response = await fetch(`${SERVICE_API.MASTER}/${serviceId}`, {
-          method: "DELETE",
-        });
+        const response = await fetchWithAuth(
+          `${SERVICE_API.MASTER}/${serviceId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         if (response.ok) {
           setServices(

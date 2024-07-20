@@ -23,7 +23,7 @@ export const SCHEDULE_API = {
 };
 
 export const BOOKING_API = {
-  MASTER: `${BASE_URL}/booking`,
+  MASTER: `${BASE_URL}/Booking`,
   CREATE_BOOKING_SERVICE: `${BASE_URL}/Booking/create-booking-service`,
 };
 
@@ -43,4 +43,12 @@ export const SERVICE_API = {
 
 export const SLOT_API = {
   MASTER: `${BASE_URL}/SlotBookings`,
+};
+
+export const BILL_API = {
+  MASTER: `${BASE_URL}/Bills`,
+};
+
+export const PAYMENT_API = {
+  MASTER: `${BASE_URL}/Payment`,
 };

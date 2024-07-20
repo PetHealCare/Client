@@ -89,12 +89,15 @@ export default function TopHeader() {
                   className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3"
                   style={{ minWidth: "200px" }}
                 >
-                  <a className="dropdown-item text-dark" href="dr-profile.html">
+                  <Link
+                    className="dropdown-item text-dark"
+                    to="/profile-doctor"
+                  >
                     <span className="mb-0 d-inline-block me-1">
                       <i className="uil uil-setting align-middle h6"></i>
                     </span>{" "}
                     Profile Settings
-                  </a>
+                  </Link>
                   <div className="dropdown-divider border-top"></div>
                   <button
                     className="dropdown-item text-dark"

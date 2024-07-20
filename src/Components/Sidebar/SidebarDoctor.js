@@ -44,20 +44,16 @@ export default function SidebarDoctor() {
           <ul className="sidebar-menu">
             {" "}
             <li>
-              <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
-              {user.fullName}
-            </li>
-            <li>
               <Link to="/doctor-schedule">
                 <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
                 Manage Schedule
               </Link>
             </li>
             <li>
-              <Link to="/customer-service">
+              {/* <Link to="/customer-service">
                 <i className="uil uil-user me-2 d-inline-block"></i>Manage
                 Service
-              </Link>
+              </Link> */}
             </li>
             {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
                         <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}

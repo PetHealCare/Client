@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function AddCustomer() {
   const { user, logout } = useAuth();
@@ -36,7 +37,7 @@ export default function AddCustomer() {
       };
       console.log("New Customer Data:", newCustomer);
 
-      const response = await fetch(CUSTOMER_API.SIGN_UP, {
+      const response = await fetchWithAuth(CUSTOMER_API.SIGN_UP, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

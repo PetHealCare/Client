@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function UpdateCustomer() {
   const { id } = useParams();
@@ -30,7 +31,9 @@ export default function UpdateCustomer() {
 
   const fetchCustomerDetails = async (customerId) => {
     try {
-      const response = await fetch(`${CUSTOMER_API.MASTER}/${customerId}`);
+      const response = await fetchWithAuth(
+        `${CUSTOMER_API.MASTER}/${customerId}`
+      );
       const data = await response.json();
       const customerData = data;
       setCustomer(customerData);
@@ -54,13 +57,16 @@ export default function UpdateCustomer() {
     };
 
     try {
-      const response = await fetch(`${CUSTOMER_API.MASTER}/UpdateProfile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedCustomer),
-      });
+      const response = await fetchWithAuth(
+        `${CUSTOMER_API.MASTER}/UpdateProfile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedCustomer),
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         console.log("Customer updated successfully:", data);

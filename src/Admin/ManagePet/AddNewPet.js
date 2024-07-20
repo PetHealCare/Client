@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Select from "react-select";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function AddNewPet() {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ export default function AddNewPet() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch(`${CUSTOMER_API.MASTER}`);
+      const response = await fetchWithAuth(`${CUSTOMER_API.MASTER}`);
       const data = await response.json();
       setCustomers(data || []);
     } catch (error) {
@@ -85,7 +86,7 @@ export default function AddNewPet() {
         description: description,
       };
 
-      const response = await fetch(PET_API.MASTER, {
+      const response = await fetchWithAuth(PET_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

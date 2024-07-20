@@ -6,6 +6,7 @@ import { PET_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,7 +25,7 @@ export default function ManagePet() {
 
   const fetchPets = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${PET_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
@@ -55,7 +56,7 @@ export default function ManagePet() {
     );
     if (confirmDelete) {
       try {
-        const response = await fetch(`${PET_API.MASTER}/${petId}`, {
+        const response = await fetchWithAuth(`${PET_API.MASTER}/${petId}`, {
           method: "DELETE",
         });
 
