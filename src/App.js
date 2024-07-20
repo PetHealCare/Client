@@ -9,7 +9,6 @@ import Booking from "./HomePage/Booking/Booking";
 import Service from "./HomePage/Service/Service";
 import Blog from "./HomePage/Blog/Blog";
 import About from "./HomePage/About/About";
-import Profile from "./Doctor/Profile/ProfileDoctor";
 import ProfileCustomer from "./Customer/Profile/ProfileCust";
 import ManageDoctor from "./Admin/ManageDoctor/ManageDoctor";
 import ManageAppointment from "./Admin/ManageAppointment/ManageAppointment";
@@ -31,6 +30,8 @@ import ManagePet from "./Admin/ManagePet/ManagePet";
 import CreateAppointment from "./Admin/ManageAppointment/CreateAppointment";
 import DoctorSchedule from "./Doctor/ManageSchedule/DoctorSchedule";
 import AddNewPet from "./Admin/ManagePet/AddNewPet";
+import UpdatePet from "./Customer/Profile/UpdatePet";
+import CreateBillPage from "./HomePage/Booking/CreateBillPage";
 
 function App() {
   return (
@@ -45,7 +46,6 @@ function App() {
             <Route exact path="/service" element={<Service />} />
             <Route exact path="/blog" element={<Blog />} />
             <Route exact path="/about" element={<About />} />
-            <Route exact path="/profile-doctor" element={<Profile />} />
             <Route
               exact
               path="/profile-customer"
@@ -91,7 +91,13 @@ function App() {
             <Route exact path="/add-service" element={<AddService />} />
             <Route exact path="/manage-pet" element={<ManagePet />} />
             <Route exact path="/add-pet" element={<AddNewPet />} />
+            <Route
+              exact
+              path="update-pet-cust/:petId"
+              element={<UpdatePet />}
+            />
             <Route exact path="/doctor-schedule" element={<DoctorSchedule />} />
+            <Route exact path="/create-bill" element={<CreateBillPage />} />
           </Routes>
         </Router>
       </AuthProvider>

@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { CUSTOMER_API, PET_API, BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function CustomerBooking() {
   const { user, logout } = useAuth();
@@ -26,7 +27,7 @@ export default function CustomerBooking() {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch(BOOKING_API.MASTER);
+      const response = await fetchWithAuth(BOOKING_API.MASTER);
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -71,7 +72,7 @@ export default function CustomerBooking() {
 
   const fetchPet = async (petId) => {
     try {
-      const response = await fetch(PET_API.SINGLE(petId));
+      const response = await fetchWithAuth(PET_API.SINGLE(petId));
       if (!response.ok) {
         throw new Error(`Failed to fetch pet with ID ${petId}`);
       }
@@ -86,7 +87,7 @@ export default function CustomerBooking() {
 
   const fetchCustomer = async (customerId) => {
     try {
-      const response = await fetch(CUSTOMER_API.SINGLE(customerId));
+      const response = await fetchWithAuth(CUSTOMER_API.SINGLE(customerId));
       if (!response.ok) {
         throw new Error(`Failed to fetch customer with ID ${customerId}`);
       }

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CUSTOMER_API } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -37,7 +38,7 @@ const Profile = () => {
     console.log("formdata", formData);
 
     try {
-      const response = await fetch(CUSTOMER_API.MASTER, {
+      const response = await fetchWithAuth(CUSTOMER_API.MASTER, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

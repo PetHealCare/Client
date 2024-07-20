@@ -1,48 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useAuth } from "../../Components/Login/Authen";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, PET_API } from "../../apiEndpoint";
+import { PET_API } from "../../apiEndpoint";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 import { fetchWithAuth } from "../../utils/apiUtils";
 
-export default function AddPet() {
+export default function UpdatePet() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { petId } = useParams(); // Get petId from URL parameters
+
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch species options if needed
-  }, []);
+    // Fetch existing pet data to pre-fill the form
+    const fetchPetData = async () => {
+      try {
+        const response = await fetchWithAuth(`${PET_API.MASTER}/${petId}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Fetched Pet Data:", data); // Debugging
+          setName(data.data.name);
+          setSpecies(data.data.species);
+          setAge(data.data.age.toString());
+          setGender(data.data.gender.toString());
+          setGeneric(data.data.generic);
+          setDescription(data.data.description);
+        } else {
+          toast.error("Failed to fetch pet data.");
+        }
+      } catch (error) {
+        toast.error("Error fetching pet data: " + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPetData();
+  }, [petId]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !species || !age || !gender || !generic || !description) {
+    if (!name || !species || !age || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
 
     try {
       const petData = {
-        name: name,
-        species: species,
-        status: true, // Assuming status is always true for new registrations
+        name,
+        species,
         customerId: user.customerId,
         age: parseInt(age),
-        gender: gender === "true", // Convert gender to boolean
-        generic: generic,
-        description: description,
+        generic,
+        description,
       };
 
-      const response = await fetchWithAuth(PET_API.MASTER, {
-        method: "POST",
+      const response = await fetchWithAuth(`${PET_API.MASTER}/${petId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -50,18 +75,22 @@ export default function AddPet() {
       });
 
       if (response.ok) {
-        toast.success("Pet registered successfully!");
+        toast.success("Pet updated successfully!");
         setTimeout(() => navigate("/customer-pet"), 1000);
       } else {
         const errorText = await response.text();
-        console.error("Error registering pet:", response.status, errorText);
-        toast.error("Error registering pet: " + errorText); // Display error message from backend
+        console.error("Error updating pet:", response.status, errorText);
+        toast.error("Error updating pet: " + errorText); // Display error message from backend
       }
     } catch (error) {
-      console.error("Error registering pet:", error);
-      toast.error("Error registering pet: " + error.message); // Display error message
+      console.error("Error updating pet:", error);
+      toast.error("Error updating pet: " + error.message); // Display error message
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Render a loading state while fetching data
+  }
 
   return (
     <div className="page-wrapper doctris-theme toggled">
@@ -165,14 +194,14 @@ export default function AddPet() {
         <div className="layout-specing">
           <div className="row">
             <div className="col-xl-9 col-md-6">
-              <h5 className="mb-0">Register New Pet</h5>
+              <h5 className="mb-0">Update Pet</h5>
               <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                 <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                   <li className="breadcrumb-item">
                     <a href="index.html">Doctris</a>
                   </li>
                   <li className="breadcrumb-item active" aria-current="page">
-                    Register New Pet
+                    Update Pet
                   </li>
                 </ul>
               </nav>
@@ -230,7 +259,7 @@ export default function AddPet() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Gender</label>
+                      {/* <label className="form-label">Gender</label>
                       <select
                         className="form-select"
                         value={gender}
@@ -239,7 +268,7 @@ export default function AddPet() {
                         <option value="">Select Gender</option>
                         <option value="true">Male</option>
                         <option value="false">Female</option>
-                      </select>
+                      </select> */}
                     </div>
                   </div>
                   <div className="row">
@@ -263,7 +292,7 @@ export default function AddPet() {
                   </div>
                   <div className="col-md-12 text-end">
                     <button type="submit" className="btn btn-primary">
-                      Add New Pet
+                      Update Pet
                     </button>
                   </div>
                 </form>

@@ -6,12 +6,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import {
+  BILL_API,
   BOOKING_API,
   DOCTOR_API,
+  PAYMENT_API,
   PET_API,
   SCHEDULE_API,
   SERVICE_API,
 } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function Booking() {
   const { user, logout } = useAuth();
@@ -56,14 +59,9 @@ export default function Booking() {
 
   const fetchServices = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
-
-      if (data.data.serviceList) {
-        setServices(data.data.serviceList);
-      } else {
-        setServices([]);
-      }
+      setServices(data.data.serviceList || []);
     } catch (error) {
       console.error("Error fetching services:", error);
     }
@@ -76,17 +74,15 @@ export default function Booking() {
       setDoctors(data.data.items || []);
     } catch (error) {
       console.error("Error fetching doctors:", error);
-      // toast.error("Error fetching doctors");
     }
   };
 
   const fetchUserPets = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
-      console.log("data user pet", data);
       setUserPets(data.data.items || []);
     } catch (error) {
       console.error("Error fetching user pets:", error);
@@ -95,14 +91,13 @@ export default function Booking() {
 
   const fetchAvailableSchedules = async (doctorId, selectedDate) => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-
       const filteredSchedules = data.filter((schedule) => {
         const scheduleDate = new Date(schedule.startTime)
           .toISOString()
@@ -110,7 +105,6 @@ export default function Booking() {
         const selectedDateString = new Date(selectedDate)
           .toISOString()
           .split("T")[0];
-
         return scheduleDate === selectedDateString && schedule.status === true;
       });
 
@@ -128,16 +122,121 @@ export default function Booking() {
 
       const doctorsData = await Promise.all(
         uniqueDoctorIds.map(async (doctorId) => {
-          const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+          const response = await fetchWithAuth(
+            `${DOCTOR_API.MASTER}/${doctorId}`
+          );
           const data = await response.json();
           return data.data;
         })
       );
-      console.log("doctor data:", doctorsData);
+
       setDoctors(doctorsData);
     } catch (error) {
       console.error("Error fetching schedules:", error);
-      // toast.error("Error fetching schedules");
+    }
+  };
+
+  const updateScheduleStatus = async (schedule) => {
+    try {
+      // Ensure `schedule` includes all required fields
+      const response = await fetchWithAuth(`${SCHEDULE_API.MASTER}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          scheduleId: schedule.scheduleId,
+          doctorId: schedule.doctorId,
+          roomNo: schedule.roomNo,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+          slotBooking: schedule.slotBooking,
+          status: false,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Schedule status updated successfully:", result);
+    } catch (error) {
+      console.error("Error updating schedule status:", error);
+      // toast.error("Error updating schedule status: " + error.message);
+    }
+  };
+
+  const fetchLatestBooking = async () => {
+    try {
+      const response = await fetchWithAuth(BOOKING_API.MASTER);
+      if (response.ok) {
+        const bookings = await response.json();
+        if (Array.isArray(bookings) && bookings.length > 0) {
+          const latestBooking = bookings[bookings.length - 1];
+          return latestBooking.bookingId;
+        } else {
+          //toast.error("No bookings found");
+          return null;
+        }
+      } else {
+        const errorText = await response.text();
+        //toast.error("Error fetching bookings: " + errorText);
+        console.error("Error response:", errorText);
+        return null;
+      }
+    } catch (error) {
+      //toast.error("Error fetching bookings: " + error.message);
+      console.error("Fetch error:", error);
+      return null;
+    }
+  };
+
+  const fetchLatestBill = async () => {
+    try {
+      const response = await fetchWithAuth(BILL_API.MASTER);
+      if (response.ok) {
+        const bills = await response.json();
+        console.log("payment latest: " + bills);
+        if (Array.isArray(bills) && bills.length > 0) {
+          const latestBill = bills[bills.length - 1];
+          return latestBill.bookingId;
+        } else {
+          //toast.error("No bills found");
+          return null;
+        }
+      } else {
+        const errorText = await response.text();
+        //toast.error("Error fetching bills: " + errorText);
+        return null;
+      }
+    } catch (error) {
+      //toast.error("Error fetching bills: " + error.message);
+      return null;
+    }
+  };
+
+  const fetchLatestPayment = async () => {
+    try {
+      const response = await fetchWithAuth(PAYMENT_API.MASTER);
+      if (response.ok) {
+        const payments = await response.json();
+        console.log("payment latest: " + payments);
+        if (Array.isArray(payments) && payments.length > 0) {
+          const latestPayment = payments[payments.length - 1];
+          return latestPayment.paymentId;
+        } else {
+          //toast.error("No payments found");
+          return null;
+        }
+      } else {
+        const errorText = await response.text();
+        //toast.error("Error fetching payments: " + errorText);
+        return null;
+      }
+    } catch (error) {
+      //toast.error("Error fetching payments: " + error.message);
+      return null;
     }
   };
 
@@ -162,9 +261,8 @@ export default function Booking() {
         note: note,
         scheduleId: parseInt(selectedSchedule, 10),
       };
-      console.log("Form Data: ", formData);
 
-      const response = await fetch(BOOKING_API.CREATE_BOOKING_SERVICE, {
+      const response = await fetchWithAuth(BOOKING_API.CREATE_BOOKING_SERVICE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,23 +271,106 @@ export default function Booking() {
       });
 
       if (response.ok) {
-        console.log("Booking successful!");
+        const result = await response.json();
         toast.success("Booking successful!");
-        setTimeout(() => window.location.reload(), 2000);
+
+        await updateScheduleStatus(selectedSchedule);
+
+        const latestBookingId = await fetchLatestBooking();
+        if (!latestBookingId) return;
+
+        // Create Bill
+        const billData = {
+          bookingId: latestBookingId,
+          totalAmount: totalPrice,
+          insDate: new Date().toISOString(),
+        };
+
+        const billResponse = await fetchWithAuth(BILL_API.MASTER, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(billData),
+        });
+
+        if (billResponse.ok) {
+          const billResult = await billResponse.json();
+          console.log("bill Result: ", billResult);
+          const latestBillId = await fetchLatestBill();
+          if (!latestBillId) return;
+
+          // Create Payment
+          const paymentData = {
+            amount: totalPrice,
+            method: "Credit Card",
+            status: "Pending",
+            billId: latestBillId,
+          };
+          console.log("Payment Data:", paymentData);
+
+          const paymentResponse = await fetch(PAYMENT_API.MASTER, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(paymentData),
+          });
+
+          if (paymentResponse.ok) {
+            const paymentResult = await paymentResponse.json();
+            const latestPaymentId = await fetchLatestPayment();
+            if (!latestPaymentId) return;
+
+            // Generate Payment Link
+            const paymentLinkData = {
+              paymentId: latestPaymentId,
+              returnUrl: window.location.origin + "/payment-success",
+              cancelUrl: window.location.origin + "/payment-cancel",
+            };
+
+            const paymentLinkResponse = await fetch(
+              `https://localhost:7083/create-payment-link`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(paymentLinkData),
+              }
+            );
+
+            if (paymentLinkResponse.ok) {
+              const paymentLinkResult = await paymentLinkResponse.json();
+              console.log(
+                "Payment link created successfully!",
+                paymentLinkResult
+              );
+              window.location.href = paymentLinkResult.url; // Redirect to payment link
+            } else {
+              const errorText = await paymentLinkResponse.text();
+              //toast.error("Error creating payment link: " + errorText);
+            }
+          } else {
+            const errorText = await paymentResponse.text();
+            //toast.error("Error creating payment: " + errorText);
+          }
+        } else {
+          const errorText = await billResponse.text();
+          //toast.error("Error creating bill: " + errorText);
+        }
       } else {
         const errorText = await response.text();
-        console.error("Error booking appointment:", response.status, errorText);
-        toast.error("Error booking appointment");
+        //toast.error("Error creating booking: " + errorText);
       }
     } catch (error) {
-      console.error("Error booking appointment:", error);
-      toast.error("Error booking appointment");
+      //toast.error("Error creating booking: " + error.message);
     }
   };
 
   const handleServiceChange = (selectedOptions) => {
     if (selectedOptions.length > 5) {
-      toast.error("You can only select up to 5 services.");
+      //toast.error("You can only select up to 5 services.");
       return;
     }
     setSelectedServices(selectedOptions.map((option) => option.value));

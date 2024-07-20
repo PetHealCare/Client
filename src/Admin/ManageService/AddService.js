@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function AddService() {
   const { user, logout } = useAuth();
@@ -38,7 +39,7 @@ export default function AddService() {
       };
       console.log("New Service Data:", newService);
 
-      const response = await fetch(SERVICE_API.MASTER, {
+      const response = await fetchWithAuth(SERVICE_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function AddSchedule() {
   const { user, logout } = useAuth();
@@ -20,7 +21,7 @@ export default function AddSchedule() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
+      const response = await fetchWithAuth(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items);
     } catch (error) {
@@ -35,7 +36,7 @@ export default function AddSchedule() {
 
   const fetchSchedules = async () => {
     try {
-      const response = await fetch(SCHEDULE_API.MASTER);
+      const response = await fetchWithAuth(SCHEDULE_API.MASTER);
       const data = await response.json();
 
       // Log the entire data object to inspect its structure

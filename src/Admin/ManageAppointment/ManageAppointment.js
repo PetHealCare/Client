@@ -6,6 +6,7 @@ import { CUSTOMER_API, PET_API, BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function ManageAppointment() {
   const { user, logout } = useAuth();
@@ -28,7 +29,7 @@ export default function ManageAppointment() {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch(BOOKING_API.MASTER);
+      const response = await fetchWithAuth(BOOKING_API.MASTER);
       const data = await response.json();
       if (Array.isArray(data)) {
         const appointmentsWithData = await Promise.all(
@@ -37,7 +38,7 @@ export default function ManageAppointment() {
               const customerResponse = await fetchCustomer(
                 appointment.customerId
               );
-              const petResponse = await fetchPet(appointment.petId);
+              const petResponse = await fetchWithAuth(appointment.petId);
 
               return {
                 ...appointment,
@@ -65,7 +66,7 @@ export default function ManageAppointment() {
 
   const fetchPet = async (petId) => {
     try {
-      const response = await fetch(PET_API.SINGLE(petId));
+      const response = await fetchWithAuth(PET_API.SINGLE(petId));
       if (!response.ok) {
         throw new Error(`Failed to fetch pet with ID ${petId}`);
       }
@@ -79,7 +80,7 @@ export default function ManageAppointment() {
 
   const fetchCustomer = async (customerId) => {
     try {
-      const response = await fetch(CUSTOMER_API.SINGLE(customerId));
+      const response = await fetchWithAuth(CUSTOMER_API.SINGLE(customerId));
       if (!response.ok) {
         throw new Error(`Failed to fetch customer with ID ${customerId}`);
       }

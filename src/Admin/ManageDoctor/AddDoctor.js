@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopHeader from "../../Components/Sidebar/TopHeader";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function AddDoctor() {
   const { user, logout } = useAuth();
@@ -42,7 +43,7 @@ export default function AddDoctor() {
       };
       console.log("New Doctor Data:", newDoctor);
 
-      const response = await fetch(DOCTOR_API.MASTER, {
+      const response = await fetchWithAuth(DOCTOR_API.MASTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../Components/Login/Authen";
 import Footer from "../../Components/Footer/Footer";
 import { PET_API } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 // import { PET_API } from "../../apiEndpoint";
 
 export default function RegisterPet() {
@@ -20,7 +21,7 @@ export default function RegisterPet() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/signin'); // Redirect to login if user is not authenticated
+      navigate("/signin"); // Redirect to login if user is not authenticated
     } else {
       fetchSpeciesOptions();
     }
@@ -29,61 +30,60 @@ export default function RegisterPet() {
   const fetchSpeciesOptions = async () => {
     // Replace this with your API call if species options are fetched from an API
     const options = [
-      { value: 'dog', label: 'Dog' },
-      { value: 'cat', label: 'Cat' },
-      { value: 'bird', label: 'Bird' },
-      { value: 'parrot', label: 'Parrot' },
-      { value: 'rabbit', label: 'Rabbit' },
-      { value: 'hamster', label: 'Hamster' },
-      { value: 'another', label: 'Another' },
+      { value: "dog", label: "Dog" },
+      { value: "cat", label: "Cat" },
+      { value: "bird", label: "Bird" },
+      { value: "parrot", label: "Parrot" },
+      { value: "rabbit", label: "Rabbit" },
+      { value: "hamster", label: "Hamster" },
+      { value: "another", label: "Another" },
       // Add more species options as needed
     ];
     setSpeciesOptions(options);
   };
 
   const handlePetRegistration = async (e) => {
+    console.log("Form submitted");
     e.preventDefault();
-  
+
     if (!name || !species || !age || !gender || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
-  
+
     try {
       const petData = {
         name: name,
         species: species,
-        status: true,  // Assuming status is always true for new registrations
         customerId: user.customerId,
         age: parseInt(age),
         gender: gender === "true", // Convert gender to boolean
         generic: generic,
         description: description,
       };
+      console.log("Pet data", petData);
 
-      const response = await fetch(PET_API.MASTER, {
+      const response = await fetchWithAuth(PET_API.MASTER, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(petData)
+        body: JSON.stringify(petData),
       });
-  
+
       if (response.ok) {
-        toast.success('Pet registered successfully!');
+        toast.success("Pet registered successfully!");
         setTimeout(() => navigate("/booking"), 1000);
       } else {
         const errorText = await response.text();
         console.error("Error registering pet:", response.status, errorText);
-        toast.error('Error registering pet: ' + errorText); // Display error message from backend
+        toast.error("Error registering pet: " + errorText); // Display error message from backend
       }
     } catch (error) {
       console.error("Error registering pet:", error);
-      toast.error('Error registering pet: ' + error.message); // Display error message
+      toast.error("Error registering pet: " + error.message); // Display error message
     }
   };
-  
-  
 
   return (
     <div>
@@ -92,27 +92,54 @@ export default function RegisterPet() {
         <div className="container">
           <div>
             <Link className="logo" to="/" style={{ marginRight: "130px" }}>
-              <img src="../assets/images/logo-light.png" className="l-dark" height="22" alt="" />
-              <img src="../assets/images/logo-dark.png" className="l-light" height="22" alt="" />
+              <img
+                src="../assets/images/logo-light.png"
+                className="l-dark"
+                height="22"
+                alt=""
+              />
+              <img
+                src="../assets/images/logo-dark.png"
+                className="l-light"
+                height="22"
+                alt=""
+              />
             </Link>
           </div>
           <ul className="dropdowns list-inline mb-0">
             {user ? (
               <li className="list-inline-item mb-0 ms-1">
                 <div className="dropdown dropdown-primary">
-                  <button type="button" className="btn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button
+                    type="button"
+                    className="btn"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
                     Welcome, {user.fullName}
                   </button>
                   <div className="dropdown-menu dd-menu dropdown-menu-end shadow border-0 mt-3 py-3">
-                    <Link className="dropdown-item text-dark" to="/dashboard">Dashboard</Link>
-                    <Link className="dropdown-item text-dark" to="/profile-settings">Profile Settings</Link>
+                    <Link className="dropdown-item text-dark" to="/dashboard">
+                      Dashboard
+                    </Link>
+                    <Link
+                      className="dropdown-item text-dark"
+                      to="/profile-settings"
+                    >
+                      Profile Settings
+                    </Link>
                     <div className="dropdown-divider border-top"></div>
-                    <Link className="dropdown-item text-dark" to="/signin">Logout</Link>
+                    <Link className="dropdown-item text-dark" to="/signin">
+                      Logout
+                    </Link>
                   </div>
                 </div>
               </li>
             ) : (
-              <Link to="/signin" className="btn btn-primary">Login</Link>
+              <Link to="/signin" className="btn btn-primary">
+                Login
+              </Link>
             )}
           </ul>
           <div id="navigation">
@@ -151,7 +178,9 @@ export default function RegisterPet() {
                     <li className="breadcrumb-item">
                       <Link to="/">PetHealthCare</Link>
                     </li>
-                    <li className="breadcrumb-item active" aria-current="page">Register Pet</li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                      Register Pet
+                    </li>
                   </ul>
                 </nav>
               </div>
@@ -161,8 +190,15 @@ export default function RegisterPet() {
       </section>
       <div className="position-relative">
         <div className="shape overflow-hidden text-color-white">
-          <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+          <svg
+            viewBox="0 0 2880 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z"
+              fill="currentColor"
+            ></path>
           </svg>
         </div>
       </div>
@@ -173,12 +209,19 @@ export default function RegisterPet() {
             <div className="col-lg-8">
               <div className="card border-0 shadow rounded overflow-hidden">
                 <div className="tab-content p-4" id="pills-tabContent">
-                  <div className="tab-pane fade show active" id="pills-clinic" role="tabpanel" aria-labelledby="clinic-booking">
+                  <div
+                    className="tab-pane fade show active"
+                    id="pills-clinic"
+                    role="tabpanel"
+                    aria-labelledby="clinic-booking"
+                  >
                     <form onSubmit={handlePetRegistration}>
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-name">Pet Name</label>
+                            <label className="form-label" htmlFor="pet-name">
+                              Pet Name
+                            </label>
                             <input
                               type="text"
                               className="form-control"
@@ -191,7 +234,9 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-age">Pet Age</label>
+                            <label className="form-label" htmlFor="pet-age">
+                              Pet Age
+                            </label>
                             <input
                               type="number"
                               className="form-control"
@@ -204,7 +249,9 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-species">Species</label>
+                            <label className="form-label" htmlFor="pet-species">
+                              Species
+                            </label>
                             <select
                               className="form-select form-control"
                               id="pet-species"
@@ -212,7 +259,9 @@ export default function RegisterPet() {
                               onChange={(e) => setSpecies(e.target.value)}
                               required
                             >
-                              <option value="" disabled>Select Species</option>
+                              <option value="" disabled>
+                                Select Species
+                              </option>
                               {speciesOptions.map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
@@ -223,7 +272,9 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-gender">Gender</label>
+                            <label className="form-label" htmlFor="pet-gender">
+                              Gender
+                            </label>
                             <select
                               className="form-select"
                               id="pet-gender"
@@ -239,7 +290,9 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-generic">Generic</label>
+                            <label className="form-label" htmlFor="pet-generic">
+                              Generic
+                            </label>
                             <input
                               type="text"
                               className="form-control"
@@ -252,7 +305,12 @@ export default function RegisterPet() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="pet-description">Description</label>
+                            <label
+                              className="form-label"
+                              htmlFor="pet-description"
+                            >
+                              Description
+                            </label>
                             <textarea
                               className="form-control"
                               id="pet-description"
@@ -264,8 +322,13 @@ export default function RegisterPet() {
                           </div>
                         </div>
                         <div className="col-lg-12">
-                          <div className="d-grid" style={{ justifyContent: "end" }}>
-                            <button type="submit" className="btn btn-primary">Register Pet</button>
+                          <div
+                            className="d-grid"
+                            style={{ justifyContent: "end" }}
+                          >
+                            <button type="submit" className="btn btn-primary">
+                              Register Pet
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -281,4 +344,3 @@ export default function RegisterPet() {
     </div>
   );
 }
-

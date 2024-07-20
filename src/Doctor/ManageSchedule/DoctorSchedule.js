@@ -7,6 +7,7 @@ import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -25,7 +26,7 @@ export default function DoctorSchedule() {
 
   const fetchSchedules = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SCHEDULE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await response.json();
@@ -61,7 +62,7 @@ export default function DoctorSchedule() {
 
   const fetchDoctorName = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -94,7 +95,7 @@ export default function DoctorSchedule() {
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
-                      <a href="index.html">Doctris</a>
+                      <Link to="/doctor-schedule">Doctris</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
                       Schedule
@@ -105,9 +106,9 @@ export default function DoctorSchedule() {
               <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
                 <div className="justify-content-md-end">
                   <div className="d-grid">
-                    <Link to="/add-schedule" className="btn btn-primary">
+                    {/* <Link to="/add-schedule" className="btn btn-primary">
                       Add Schedule
-                    </Link>
+                    </Link> */}
                   </div>
                 </div>
               </div>
