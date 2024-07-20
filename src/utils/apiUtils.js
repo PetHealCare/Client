@@ -19,6 +19,6 @@ export const fetchWithAuth = async (url, options = {}) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
   
-    return response.json();
+    return response;
   };
   

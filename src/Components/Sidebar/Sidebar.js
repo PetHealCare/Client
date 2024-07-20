@@ -31,12 +31,12 @@ export default function Sidebar() {
             </a>
           </div>
           <ul className="sidebar-menu">
-            <li>
+            {/* <li>
               <a href="index.html">
                 <i className="uil uil-dashboard me-2 d-inline-block"></i>
                 Dashboard
               </a>
-            </li>
+            </li> */}
             <li>
               <Link to="/manage-appointment">
                 <i className="uil uil-bookmark-full me-2 d-inline-block"></i>{" "}
