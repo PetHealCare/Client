@@ -1,57 +1,75 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import Footer from "../../Components/Footer/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../Components/Login/Authen";
 import { BOOKING_API } from "../../apiEndpoint";
-import { fetchWithAuth } from "../../utils/apiUtils";
 
 const BillPage = () => {
   const { user } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [billDetails, setBillDetails] = useState(location.state || {});
-  const [latestBookingId, setLatestBookingId] = useState(null);
+  const [billDetails, setBillDetails] = useState({});
+  const [bookingDetails, setBookingDetails] = useState(null);
 
   useEffect(() => {
     const fetchLatestBooking = async () => {
       try {
-        const response = await fetchWithAuth(BOOKING_API.MASTER);
-        if (response.ok) {
-          const bookings = await response.json();
-          if (Array.isArray(bookings) && bookings.length > 0) {
-            const latestBooking = bookings[bookings.length - 1];
-            setLatestBookingId(latestBooking.bookingId);
-          } else {
-            toast.error("No bookings found");
+        const response = await fetch(BOOKING_API.MASTER);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Error fetching bookings");
+        }
+
+        // Find the latest booking based on ID or timestamp
+        const latestBooking = data.slice(-1)[0]; // Assuming items is an array and sorted
+
+        if (latestBooking) {
+          const bookingId = latestBooking.bookingId;
+
+          // Fetch booking details using the latest bookingId
+          const bookingData = await fetchBookingDetails(bookingId);
+          console.log("bookingData", bookingData);
+          if (bookingData) {
+            setBookingDetails(bookingData);
           }
         } else {
-          const errorText = await response.text();
-          toast.error("Error fetching bookings: " + errorText);
+          toast.error("No bookings found.");
         }
       } catch (error) {
-        toast.error("Error fetching bookings: " + error.message);
+        console.error("Error fetching latest booking:", error);
+        toast.error("Error fetching latest booking");
       }
     };
 
     fetchLatestBooking();
   }, []);
 
-  const handleConfirmBill = async () => {
-    if (!paymentMethod) {
-      toast.error("Please select a payment method");
-      return;
-    }
+  const fetchBookingDetails = async (bookingId) => {
+    try {
+      const response = await fetch(`${BOOKING_API.MASTER}/${bookingId}`);
+      const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.message || "Error fetching booking details");
+      }
+
+      console.log("Booking Details:", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      return null;
+    }
+  };
+
+  const handleConfirmBill = async () => {
     try {
       const billData = {
         ...billDetails,
-        paymentMethod,
         insDate: new Date().toISOString(),
-        bookingId: latestBookingId, // Include the latestBookingId
+        bookingId: bookingDetails.bookingId,
       };
 
       // Replace with your API endpoint for creating a bill
@@ -172,40 +190,41 @@ const BillPage = () => {
 
       <section className="section">
         <div className="container">
-          <div className="row">
+          <div className="row justify-content-center">
             <div className="col-lg-8">
               <div className="card border-0 shadow rounded overflow-hidden">
                 <div className="p-4">
                   <h5 className="mb-4">Payment Details</h5>
                   <form>
                     <div className="mb-3">
-                      <label className="form-label" htmlFor="payment-method">
-                        Payment Method
-                        <select
-                          className="form-select form-control"
-                          id="payment-method"
-                          value={paymentMethod}
-                          onChange={(e) => setPaymentMethod(e.target.value)}
-                        >
-                          <option value="" disabled>
-                            Select Payment Method
-                          </option>
-                          <option value="Cash">Cash</option>
-                          <option value="Credit Card">Credit Card</option>
-                        </select>
-                      </label>
-                      {/* <select
-                        className="form-select form-control"
-                        id="payment-method"
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                      >
-                        <option value="" disabled>
-                          Select Payment Method
-                        </option>
-                        <option value="Cash">Cash</option>
-                        <option value="Credit Card">Credit Card</option>
-                      </select> */}
+                      <label className="form-label">Pet</label>
+                      <p className="form-control-plaintext">
+                        {bookingDetails?.pet || "N/A"}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Date</label>
+                      <p className="form-control-plaintext">
+                        {bookingDetails?.date || "N/A"}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Time</label>
+                      <p className="form-control-plaintext">
+                        {bookingDetails?.time || "N/A"}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Doctor</label>
+                      <p className="form-control-plaintext">
+                        {bookingDetails?.doctor || "N/A"}
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label">Service</label>
+                      <p className="form-control-plaintext">
+                        {bookingDetails?.service || "N/A"}
+                      </p>
                     </div>
                     <div className="mb-3">
                       <label className="form-label">Total Amount</label>

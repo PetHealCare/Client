@@ -115,46 +115,57 @@ export default function Booking() {
         throw new Error(data.message || "Error fetching schedules");
       }
 
-      // Filter schedules for the specified date
       const bookedSlots = data
-        .filter((booking) => {
-          const bookingDate = new Date(booking.startTime)
+        .filter((schedule) => {
+          const scheduleDate = new Date(schedule.startTime)
             .toISOString()
             .split("T")[0];
-          return bookingDate === date;
+          return scheduleDate === date;
         })
-        .map((booking) => ({
-          startTime: new Date(booking.startTime),
-          endTime: new Date(booking.endTime),
+        .map((schedule) => ({
+          startTime: new Date(schedule.startTime).toLocaleString("sv-SE", {
+            timeZone: "Asia/Ho_Chi_Minh",
+            hour12: false,
+          }),
+          endTime: new Date(schedule.endTime).toLocaleString("sv-SE", {
+            timeZone: "Asia/Ho_Chi_Minh",
+            hour12: false,
+          }),
         }));
 
-      console.log("slot: ", bookedSlots);
-
-      filterAvailableTimeslots(bookedSlots);
+      filterAvailableTimeslots(bookedSlots, date);
     } catch (error) {
       console.error("Error fetching schedules:", error);
     }
   };
 
-  const filterAvailableTimeslots = (bookedSlots) => {
-    // Convert booked slots to a more manageable format if needed
+  const filterAvailableTimeslots = (bookedSlots, selectedDate) => {
+    // Convert booked slots to Date objects
     const bookedTimes = bookedSlots.map((slot) => ({
-      start: slot.startTime.getTime(),
-      end: slot.endTime.getTime(),
+      start: new Date(slot.startTime),
+      end: new Date(slot.endTime),
     }));
+
+    console.log("Booked Times:", bookedTimes); // Log booked times for debugging
 
     // Filter available timeslots
     const availableSlots = timeslots.filter((timeslot) => {
-      const timeslotStart = new Date(
-        `1970-01-01T${timeslot.start}:00`
-      ).getTime();
-      const timeslotEnd = new Date(`1970-01-01T${timeslot.end}:00`).getTime();
+      // Convert timeslot start and end times to Date objects using the selected date
+      const timeslotStart = new Date(`${selectedDate}T${timeslot.start}:00`);
+      const timeslotEnd = new Date(`${selectedDate}T${timeslot.end}:00`);
+
+      console.log("Timeslot Start:", timeslotStart);
+      console.log("Timeslot End:", timeslotEnd);
 
       // Check if the timeslot is not overlapping with any booked slot
-      return !bookedTimes.some(
+      const isAvailable = !bookedTimes.some(
         (bookedSlot) =>
           timeslotStart < bookedSlot.end && timeslotEnd > bookedSlot.start
       );
+
+      console.log("Is Timeslot Available:", isAvailable);
+
+      return isAvailable;
     });
 
     console.log("Available Slots:", availableSlots); // Log available slots for debugging
@@ -216,9 +227,12 @@ export default function Booking() {
 
       const result = await response.json();
 
+      console.log("data", result);
+
       if (response.ok) {
+        console.log("Booking created with ID:", result.bookingId); // Add this line
         toast.success("Appointment booked successfully!");
-        // navigate("/customer-bookings");
+        navigate("/create-bill");
       } else {
         toast.error(result.message || "Error booking appointment");
       }
