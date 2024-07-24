@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AUTH_API, CUSTOMER_API } from "../../apiEndpoint";
-import { fetchWithAuth } from "../../utils/apiUtils";
+// import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetchWithAuth(CUSTOMER_API.SIGN_UP, {
+      const response = await fetch(CUSTOMER_API.SIGN_UP, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

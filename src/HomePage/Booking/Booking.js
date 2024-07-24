@@ -14,21 +14,35 @@ import {
   SCHEDULE_API,
   SERVICE_API,
 } from "../../apiEndpoint";
-import { fetchWithAuth } from "../../utils/apiUtils";
+
+const timeslots = [
+  { start: "08:00", end: "10:00", slotBooking: 1, label: "8:00 - 10:00" },
+  { start: "10:00", end: "12:00", slotBooking: 2, label: "10:00 - 12:00" },
+  { start: "13:00", end: "15:00", slotBooking: 3, label: "13:00 - 15:00" },
+  { start: "15:00", end: "17:00", slotBooking: 4, label: "15:00 - 17:00" },
+];
+
+const getTodayDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default function Booking() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [userPets, setUserPets] = useState([]);
   const [selectedPetId, setSelectedPetId] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(getTodayDate());
   const [note, setNote] = useState("");
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState("");
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [availableSchedules, setAvailableSchedules] = useState([]);
-  const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
 
   const handleLogout = () => {
@@ -41,7 +55,7 @@ export default function Booking() {
       fetchUserPets();
       fetchDoctors();
     } else {
-      navigate("/signin"); // Redirect to login if user is not authenticated
+      navigate("/signin");
     }
   }, [user, navigate]);
 
@@ -52,14 +66,14 @@ export default function Booking() {
   }, [selectedDoctorId]);
 
   useEffect(() => {
-    if (selectedDoctorId || date) {
+    if (selectedDoctorId && date) {
       fetchAvailableSchedules(selectedDoctorId, date);
     }
   }, [selectedDoctorId, date]);
 
   const fetchServices = async (doctorId) => {
     try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
       setServices(data.data.serviceList || []);
     } catch (error) {
@@ -79,7 +93,7 @@ export default function Booking() {
 
   const fetchUserPets = async () => {
     try {
-      const response = await fetchWithAuth(
+      const response = await fetch(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
@@ -89,288 +103,67 @@ export default function Booking() {
     }
   };
 
-  const fetchAvailableSchedules = async (doctorId, selectedDate) => {
+  const fetchAvailableSchedules = async (doctorId, date) => {
     try {
-      const response = await fetchWithAuth(
-        `${SCHEDULE_API.MASTER}?DoctorId=${doctorId}`
+      const response = await fetch(
+        `${SCHEDULE_API.MASTER}?doctorId=${doctorId}`
       );
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
       const data = await response.json();
-      const filteredSchedules = data.filter((schedule) => {
-        const scheduleDate = new Date(schedule.startTime)
-          .toISOString()
-          .split("T")[0];
-        const selectedDateString = new Date(selectedDate)
-          .toISOString()
-          .split("T")[0];
-        return scheduleDate === selectedDateString && schedule.status === true;
-      });
+      console.log("data schedule", data);
 
-      setAvailableSchedules(filteredSchedules);
-
-      if (filteredSchedules.length === 0) {
-        setSelectedSchedule("");
-      } else {
-        setSelectedSchedule(filteredSchedules[0].scheduleId);
+      if (!response.ok) {
+        throw new Error(data.message || "Error fetching schedules");
       }
 
-      const uniqueDoctorIds = Array.from(
-        new Set(filteredSchedules.map((schedule) => schedule.doctorId))
-      );
-
-      const doctorsData = await Promise.all(
-        uniqueDoctorIds.map(async (doctorId) => {
-          const response = await fetchWithAuth(
-            `${DOCTOR_API.MASTER}/${doctorId}`
-          );
-          const data = await response.json();
-          return data.data;
+      // Filter schedules for the specified date
+      const bookedSlots = data
+        .filter((booking) => {
+          const bookingDate = new Date(booking.startTime)
+            .toISOString()
+            .split("T")[0];
+          return bookingDate === date;
         })
-      );
+        .map((booking) => ({
+          startTime: new Date(booking.startTime),
+          endTime: new Date(booking.endTime),
+        }));
 
-      setDoctors(doctorsData);
+      console.log("slot: ", bookedSlots);
+
+      filterAvailableTimeslots(bookedSlots);
     } catch (error) {
       console.error("Error fetching schedules:", error);
     }
   };
 
-  const updateScheduleStatus = async (schedule) => {
-    try {
-      // Ensure `schedule` includes all required fields
-      const response = await fetchWithAuth(`${SCHEDULE_API.MASTER}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          scheduleId: schedule.scheduleId,
-          doctorId: schedule.doctorId,
-          roomNo: schedule.roomNo,
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-          slotBooking: schedule.slotBooking,
-          status: false,
-        }),
-      });
+  const filterAvailableTimeslots = (bookedSlots) => {
+    // Convert booked slots to a more manageable format if needed
+    const bookedTimes = bookedSlots.map((slot) => ({
+      start: slot.startTime.getTime(),
+      end: slot.endTime.getTime(),
+    }));
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+    // Filter available timeslots
+    const availableSlots = timeslots.filter((timeslot) => {
+      const timeslotStart = new Date(
+        `1970-01-01T${timeslot.start}:00`
+      ).getTime();
+      const timeslotEnd = new Date(`1970-01-01T${timeslot.end}:00`).getTime();
 
-      const result = await response.json();
-      console.log("Schedule status updated successfully:", result);
-    } catch (error) {
-      console.error("Error updating schedule status:", error);
-      // toast.error("Error updating schedule status: " + error.message);
-    }
-  };
-
-  const fetchLatestBooking = async () => {
-    try {
-      const response = await fetchWithAuth(BOOKING_API.MASTER);
-      if (response.ok) {
-        const bookings = await response.json();
-        if (Array.isArray(bookings) && bookings.length > 0) {
-          const latestBooking = bookings[bookings.length - 1];
-          return latestBooking.bookingId;
-        } else {
-          //toast.error("No bookings found");
-          return null;
-        }
-      } else {
-        const errorText = await response.text();
-        //toast.error("Error fetching bookings: " + errorText);
-        console.error("Error response:", errorText);
-        return null;
-      }
-    } catch (error) {
-      //toast.error("Error fetching bookings: " + error.message);
-      console.error("Fetch error:", error);
-      return null;
-    }
-  };
-
-  const fetchLatestBill = async () => {
-    try {
-      const response = await fetchWithAuth(BILL_API.MASTER);
-      if (response.ok) {
-        const bills = await response.json();
-        console.log("payment latest: " + bills);
-        if (Array.isArray(bills) && bills.length > 0) {
-          const latestBill = bills[bills.length - 1];
-          return latestBill.bookingId;
-        } else {
-          //toast.error("No bills found");
-          return null;
-        }
-      } else {
-        const errorText = await response.text();
-        //toast.error("Error fetching bills: " + errorText);
-        return null;
-      }
-    } catch (error) {
-      //toast.error("Error fetching bills: " + error.message);
-      return null;
-    }
-  };
-
-  const fetchLatestPayment = async () => {
-    try {
-      const response = await fetchWithAuth(PAYMENT_API.MASTER);
-      if (response.ok) {
-        const payments = await response.json();
-        console.log("payment latest: " + payments);
-        if (Array.isArray(payments) && payments.length > 0) {
-          const latestPayment = payments[payments.length - 1];
-          return latestPayment.paymentId;
-        } else {
-          //toast.error("No payments found");
-          return null;
-        }
-      } else {
-        const errorText = await response.text();
-        //toast.error("Error fetching payments: " + errorText);
-        return null;
-      }
-    } catch (error) {
-      //toast.error("Error fetching payments: " + error.message);
-      return null;
-    }
-  };
-
-  const handleAppointmentSubmit = async (e) => {
-    e.preventDefault();
-    if (userPets.length === 0) {
-      setTimeout(() => navigate("/register-pet"), 1000);
-    }
-    if (!selectedPetId) {
-      toast.error(
-        "Currently, you haven't information of Pet. Please, register!"
+      // Check if the timeslot is not overlapping with any booked slot
+      return !bookedTimes.some(
+        (bookedSlot) =>
+          timeslotStart < bookedSlot.end && timeslotEnd > bookedSlot.start
       );
-      return;
-    }
+    });
 
-    try {
-      const formData = {
-        petId: parseInt(selectedPetId, 10),
-        customerId: user.customerId,
-        doctorId: parseInt(selectedDoctorId, 10),
-        serviceIds: selectedServices,
-        note: note,
-        scheduleId: parseInt(selectedSchedule, 10),
-      };
-
-      const response = await fetchWithAuth(BOOKING_API.CREATE_BOOKING_SERVICE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        toast.success("Booking successful!");
-
-        await updateScheduleStatus(selectedSchedule);
-
-        const latestBookingId = await fetchLatestBooking();
-        if (!latestBookingId) return;
-
-        // Create Bill
-        const billData = {
-          bookingId: latestBookingId,
-          totalAmount: totalPrice,
-          insDate: new Date().toISOString(),
-        };
-
-        const billResponse = await fetchWithAuth(BILL_API.MASTER, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(billData),
-        });
-
-        if (billResponse.ok) {
-          const billResult = await billResponse.json();
-          console.log("bill Result: ", billResult);
-          const latestBillId = await fetchLatestBill();
-          if (!latestBillId) return;
-
-          // Create Payment
-          const paymentData = {
-            amount: totalPrice,
-            method: "Credit Card",
-            status: "Pending",
-            billId: latestBillId,
-          };
-          console.log("Payment Data:", paymentData);
-
-          const paymentResponse = await fetch(PAYMENT_API.MASTER, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(paymentData),
-          });
-
-          if (paymentResponse.ok) {
-            const paymentResult = await paymentResponse.json();
-            const latestPaymentId = await fetchLatestPayment();
-            if (!latestPaymentId) return;
-
-            // Generate Payment Link
-            const paymentLinkData = {
-              paymentId: latestPaymentId,
-              returnUrl: window.location.origin + "/payment-success",
-              cancelUrl: window.location.origin + "/payment-cancel",
-            };
-
-            const paymentLinkResponse = await fetch(
-              `https://localhost:7083/create-payment-link`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(paymentLinkData),
-              }
-            );
-
-            if (paymentLinkResponse.ok) {
-              const paymentLinkResult = await paymentLinkResponse.json();
-              console.log(
-                "Payment link created successfully!",
-                paymentLinkResult
-              );
-              window.location.href = paymentLinkResult.url; // Redirect to payment link
-            } else {
-              const errorText = await paymentLinkResponse.text();
-              //toast.error("Error creating payment link: " + errorText);
-            }
-          } else {
-            const errorText = await paymentResponse.text();
-            //toast.error("Error creating payment: " + errorText);
-          }
-        } else {
-          const errorText = await billResponse.text();
-          //toast.error("Error creating bill: " + errorText);
-        }
-      } else {
-        const errorText = await response.text();
-        //toast.error("Error creating booking: " + errorText);
-      }
-    } catch (error) {
-      //toast.error("Error creating booking: " + error.message);
-    }
+    console.log("Available Slots:", availableSlots); // Log available slots for debugging
+    setAvailableSchedules(availableSlots);
   };
 
   const handleServiceChange = (selectedOptions) => {
     if (selectedOptions.length > 5) {
-      //toast.error("You can only select up to 5 services.");
+      toast.error("You can only select up to 5 services.");
       return;
     }
     setSelectedServices(selectedOptions.map((option) => option.value));
@@ -383,21 +176,58 @@ export default function Booking() {
     setTotalPrice(total);
   };
 
-  const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    setDate(selectedDate);
-    if (selectedDoctorId) {
-      fetchAvailableSchedules(selectedDoctorId, selectedDate);
+  const getRoomNo = (doctorId) => {
+    const roomMap = {
+      1: "Room 101",
+      2: "Room 102",
+      3: "Room 103",
+      4: "Room 104",
+    };
+    return roomMap[doctorId] || "Room 105";
+  };
+
+  const handleAppointmentSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedPetId || !selectedDoctorId || !date || !selectedSchedule) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch(BOOKING_API.CREATE_BOOKING_SERVICE, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerId: user.customerId,
+          petId: selectedPetId,
+          doctorId: selectedDoctorId,
+          note: note,
+          serviceIds: selectedServices,
+          roomNo: getRoomNo(selectedDoctorId),
+          startTime: date + "T" + selectedSchedule.start,
+          endTime: date + "T" + selectedSchedule.end,
+          slotBooking: selectedSchedule.slotBooking,
+          status: true,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Appointment booked successfully!");
+        // navigate("/customer-bookings");
+      } else {
+        toast.error(result.message || "Error booking appointment");
+      }
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+      toast.error("Error booking appointment");
     }
   };
 
-  const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
   return (
     <div>
       <ToastContainer />
@@ -550,7 +380,7 @@ export default function Booking() {
                               onChange={(e) => setSelectedPetId(e.target.value)}
                             >
                               <option value="" disabled>
-                                Select Pet
+                                Select Your Pet
                               </option>
                               {userPets.map((pet) => (
                                 <option key={pet.petId} value={pet.petId}>
@@ -562,17 +392,14 @@ export default function Booking() {
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label" htmlFor="input-date">
-                              Date
-                            </label>
+                            <label className="form-label">Select Date</label>
                             <input
-                              name="date"
                               type="date"
                               className="form-control"
-                              id="input-date"
                               value={date}
+                              onChange={(e) => setDate(e.target.value)}
+                              required
                               min={getTodayDate()}
-                              onChange={handleDateChange}
                             />
                           </div>
                         </div>
@@ -609,34 +436,18 @@ export default function Booking() {
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">
-                              Available Schedule
-                            </label>
-                            <select
-                              className="form-select form-control"
-                              value={selectedSchedule}
-                              onChange={(e) =>
-                                setSelectedSchedule(e.target.value)
+                            <label className="form-label">Available Time</label>
+                            <Select
+                              name="time"
+                              options={availableSchedules.map((schedule) => ({
+                                value: schedule,
+                                label: schedule.label,
+                              }))}
+                              onChange={(selectedOption) =>
+                                setSelectedSchedule(selectedOption.value)
                               }
-                            >
-                              <option value="" disabled>
-                                Select a schedule
-                              </option>
-                              {availableSchedules.map((schedule) => (
-                                <option
-                                  key={schedule.scheduleId}
-                                  value={schedule.scheduleId}
-                                >
-                                  {new Date(
-                                    schedule.startTime
-                                  ).toLocaleTimeString()}{" "}
-                                  -{" "}
-                                  {new Date(
-                                    schedule.endTime
-                                  ).toLocaleTimeString()}
-                                </option>
-                              ))}
-                            </select>
+                              isClearable
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
