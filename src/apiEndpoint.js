@@ -52,3 +52,7 @@ export const BILL_API = {
 export const PAYMENT_API = {
   MASTER: `${BASE_URL}/Payment`,
 };
+
+export const PAYOS_API = {
+  CREATE: `${BASE_URL}/create-payment-link`,
+};

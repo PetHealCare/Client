@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import Footer from "../../Components/Footer/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../Components/Login/Authen";
-import { BOOKING_API } from "../../apiEndpoint";
+import {
+  BILL_API,
+  BOOKING_API,
+  PAYMENT_API,
+  PAYOS_API,
+} from "../../apiEndpoint";
 
 const BillPage = () => {
   const { user } = useAuth();
@@ -23,17 +28,25 @@ const BillPage = () => {
           throw new Error(data.message || "Error fetching bookings");
         }
 
-        // Find the latest booking based on ID or timestamp
-        const latestBooking = data.slice(-1)[0]; // Assuming items is an array and sorted
+        console.log("Fetched data:", data);
 
-        if (latestBooking) {
-          const bookingId = latestBooking.bookingId;
+        if (Array.isArray(data) && data.length > 0) {
+          const latestBooking = data[data.length - 1];
+          console.log("Latest booking from data:", latestBooking);
 
-          // Fetch booking details using the latest bookingId
-          const bookingData = await fetchBookingDetails(bookingId);
-          console.log("bookingData", bookingData);
-          if (bookingData) {
-            setBookingDetails(bookingData);
+          if (latestBooking) {
+            const bookingId = latestBooking.bookingId;
+            console.log("Using bookingId:", bookingId);
+
+            // Fetch booking details using the latest bookingId
+            const bookingData = await fetchBookingDetails(bookingId);
+            console.log("Received bookingData:", bookingData);
+
+            if (bookingData) {
+              setBookingDetails(bookingData);
+            } else {
+              // toast.error("No details found for the latest booking.");
+            }
           }
         } else {
           toast.error("No bookings found.");
@@ -49,6 +62,7 @@ const BillPage = () => {
 
   const fetchBookingDetails = async (bookingId) => {
     try {
+      console.log(("fetch detail", bookingId));
       const response = await fetch(`${BOOKING_API.MASTER}/${bookingId}`);
       const data = await response.json();
 
@@ -66,14 +80,23 @@ const BillPage = () => {
 
   const handleConfirmBill = async () => {
     try {
+      const selectedServices = bookingDetails.services || [];
+
+      // Calculate total amount from selected services
+      const totalAmount = selectedServices.reduce(
+        (sum, service) => sum + (service.price || 0), // Handle undefined price
+        0
+      );
+
       const billData = {
         ...billDetails,
+        totalAmount: totalAmount,
         insDate: new Date().toISOString(),
         bookingId: bookingDetails.bookingId,
       };
 
-      // Replace with your API endpoint for creating a bill
-      const response = await fetch("/api/create-bill", {
+      // Create bill
+      const billResponse = await fetch(`${BILL_API.MASTER}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,15 +104,138 @@ const BillPage = () => {
         body: JSON.stringify(billData),
       });
 
+      if (!billResponse.ok) {
+        const errorText = await billResponse.text();
+        throw new Error(`Error creating bill: ${errorText}`);
+      }
+
+      const billResponseData = await billResponse.json();
+      const createdBillId = billResponseData.billId;
+
+      // Fetch the latest bills
+      const latestBillResponse = await fetch(`${BILL_API.MASTER}`);
+      if (!latestBillResponse.ok) {
+        const errorText = await latestBillResponse.text();
+        throw new Error(`Error fetching latest bill: ${errorText}`);
+      }
+
+      const bills = await latestBillResponse.json();
+      const latestBill = bills[bills.length - 1];
+      const latestBillId = latestBill.billId;
+
+      console.log("latestBill: ", latestBillId);
+
+      // Create payment
+      const paymentData = {
+        billId: createdBillId,
+        amount: totalAmount,
+        method: billDetails.paymentMethod || "Credit Card",
+        status: "Pending",
+      };
+
+      console.log("paymentdata", paymentData);
+
+      const paymentResponse = await fetch(`${PAYMENT_API.MASTER}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      if (!paymentResponse.ok) {
+        const errorText = await paymentResponse.text();
+        throw new Error(`Error creating payment: ${errorText}`);
+      }
+
+      // Fetch the latest payments
+      const latestPaymentResponse = await fetch(`${PAYMENT_API.MASTER}`);
+      if (!latestPaymentResponse.ok) {
+        const errorText = await latestPaymentResponse.text();
+        throw new Error(`Error fetching latest payment: ${errorText}`);
+      }
+
+      const payments = await latestPaymentResponse.json();
+      const latestPayment = payments[payments.length - 1];
+      const latestPaymentId = latestPayment.paymentId;
+
+      console.log("latestPaymentId: ", latestPaymentId);
+
+      const paymentLinkResponse = await createPaymentLink(latestPaymentId);
+      if (!paymentLinkResponse.ok) {
+        const errorText = await paymentLinkResponse.text();
+        throw new Error(`Failed to create payment link: ${errorText}`);
+      }
+
+      console.log("Payment link created");
+
+      // Handle payment link response
+      const paymentLinkData = await paymentLinkResponse.json();
+      const paymentLink = paymentLinkData.url;
+
+      // Redirect to the payment link
+      window.location.href = paymentLink;
+
+      toast.success(
+        "The appointment is booked successfully! Redirecting to the payment page."
+      );
+    } catch (error) {
+      toast.error("Error creating bill and payment: " + error.message);
+    }
+  };
+
+  const createPaymentLink = async (paymentId) => {
+    try {
+      const response = await fetch(`${PAYOS_API.CREATE}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+        },
+        body: JSON.stringify({
+          bookingId: paymentId,
+          returnUrl: "https://www.localhost3000",
+          cancelUrl: "https://www.localhost3000",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create payment link: ${errorText}`);
+      }
+
+      console.log("Payment link response:", response);
+
+      return response;
+    } catch (error) {
+      console.error("Error creating payment link:", error.message);
+      return null;
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!bookingDetails?.bookingId) {
+      // toast.error("No booking to cancel");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BOOKING_API.MASTER}/${bookingDetails.bookingId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       if (response.ok) {
-        toast.success("Bill created successfully!");
-        navigate("/dashboard"); // Redirect to a dashboard or another page after success
+        // toast.success("Booking cancelled successfully");
+        navigate("/");
       } else {
         const errorText = await response.text();
-        toast.error("Error creating bill: " + errorText); // Display error message from backend
+        // toast.error("Error cancelling booking: " + errorText);
       }
     } catch (error) {
-      toast.error("Error creating bill: " + error.message); // Display error message
+      // toast.error("Error cancelling booking: " + error.message);
     }
   };
 
@@ -196,50 +342,87 @@ const BillPage = () => {
                 <div className="p-4">
                   <h5 className="mb-4">Payment Details</h5>
                   <form>
-                    <div className="mb-3">
-                      <label className="form-label">Pet</label>
-                      <p className="form-control-plaintext">
-                        {bookingDetails?.pet || "N/A"}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Date</label>
-                      <p className="form-control-plaintext">
-                        {bookingDetails?.date || "N/A"}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Time</label>
-                      <p className="form-control-plaintext">
-                        {bookingDetails?.time || "N/A"}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Doctor</label>
-                      <p className="form-control-plaintext">
-                        {bookingDetails?.doctor || "N/A"}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Service</label>
-                      <p className="form-control-plaintext">
-                        {bookingDetails?.service || "N/A"}
-                      </p>
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label">Total Amount</label>
-                      <p className="form-control-plaintext">
-                        ${billDetails.totalAmount || 0}
-                      </p>
-                    </div>
-                    <div className="d-grid">
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={handleConfirmBill}
-                      >
-                        Confirm Bill
-                      </button>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Pet</label>
+                          <p className="form-control-plaintext">
+                            {bookingDetails?.pet?.name || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Doctor</label>
+                          <p className="form-control-plaintext">
+                            {bookingDetails?.doctor?.fullName || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Date</label>
+                          <p className="form-control-plaintext">
+                            {formatDate(bookingDetails?.bookingDate) || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Time</label>
+                          <p className="form-control-plaintext">
+                            {formatTime(bookingDetails?.schedule.startTime) ||
+                              "N/A"}{" "}
+                            -{" "}
+                            {formatTime(bookingDetails?.schedule.endTime) ||
+                              "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Service</label>
+                          <p className="form-control-plaintext">
+                            {bookingDetails?.services
+                              ? bookingDetails.services
+                                  .map((service) => service.serviceName)
+                                  .join(", ")
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Total Amount</label>
+                          <p className="form-control-plaintext">
+                            {bookingDetails?.services
+                              ? bookingDetails.services
+                                  .reduce(
+                                    (sum, service) => sum + service.price,
+                                    0
+                                  )
+                                  .toFixed(2)
+                              : "0.00"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="d-flex justify-content-end mt-4">
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleCancelBooking}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-primary me-2"
+                          onClick={handleConfirmBill}
+                        >
+                          Confirm
+                        </button>
+                      </div>
                     </div>
                   </form>
                 </div>
@@ -248,9 +431,23 @@ const BillPage = () => {
           </div>
         </div>
       </section>
+
       <Footer />
     </div>
   );
 };
 
 export default BillPage;
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+};
+
+const formatTime = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  return `${hours}:00`;
+};
