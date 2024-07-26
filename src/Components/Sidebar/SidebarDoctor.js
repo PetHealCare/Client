@@ -23,7 +23,7 @@ export default function SidebarDoctor() {
           style={{ height: "calc(100% - 60px)" }}
         >
           <div className="sidebar-brand">
-            <Link to="/">
+            <Link to="/doctor-schedule">
               <img
                 src="../assets/images/logo-dark.png"
                 height="22"

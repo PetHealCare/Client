@@ -32,6 +32,7 @@ import DoctorSchedule from "./Doctor/ManageSchedule/DoctorSchedule";
 import AddNewPet from "./Admin/ManagePet/AddNewPet";
 import UpdatePet from "./Customer/Profile/UpdatePet";
 import CreateBillPage from "./HomePage/Booking/CreateBillPage";
+import ProfileDoctor from "./Doctor/ManageSchedule/ProfileDoctor";
 
 function App() {
   return (
@@ -98,6 +99,7 @@ function App() {
             />
             <Route exact path="/doctor-schedule" element={<DoctorSchedule />} />
             <Route exact path="/create-bill" element={<CreateBillPage />} />
+            <Route exact path="/profile-doctor" element={<ProfileDoctor />} />
           </Routes>
         </Router>
       </AuthProvider>

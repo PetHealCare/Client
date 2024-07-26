@@ -2,55 +2,70 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, SCHEDULE_API } from "../../apiEndpoint";
+import { BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
-import Sidebar from "../../Components/Sidebar/Sidebar";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
-import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function DoctorSchedule() {
   const { user, logout } = useAuth();
-  const [schedules, setSchedules] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [filters, setFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      fetchSchedules();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        doctorId: user.data.doctorId,
+      }));
     }
-  }, [user, currentPage]); // Reload schedules when user or currentPage changes
+  }, [user]);
 
-  const fetchSchedules = async () => {
+  useEffect(() => {
+    if (user && filters.doctorId) {
+      fetchFilteredBookings();
+    }
+  }, [user, filters, currentPage]);
+
+  const fetchFilteredBookings = async () => {
     try {
-      const response = await fetchWithAuth(
-        `${SCHEDULE_API.MASTER}?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
-      );
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        doctorId: filters.doctorId,
+      }).toString();
+
+      const response = await fetch(`${BOOKING_API.MASTER}?${queryParams}`);
       const data = await response.json();
+
+      console.log("API Response Data:", data);
+
       if (Array.isArray(data)) {
-        // Fetch all doctor names in parallel
-        const doctorPromises = data.map(async (schedule) => {
-          const doctorName = await fetchDoctorName(schedule.doctorId);
-          return { ...schedule, doctorName };
-        });
-        const schedulesWithDoctors = await Promise.all(doctorPromises);
-        setSchedules(schedulesWithDoctors);
-        setTotalPages(data.totalPages);
+        // Sort bookings from newest to oldest based on startTime
+        const sortedBookings = data.sort(
+          (a, b) =>
+            new Date(b.schedule.startTime) - new Date(a.schedule.startTime)
+        );
+        setBookings(sortedBookings);
+        setTotalPages(Math.ceil(data.total / ITEMS_PER_PAGE)); // Adjust as needed
       } else {
-        console.error("Fetched data is not an array:", data);
-        setSchedules([]);
+        console.error("Data is not in expected format:", data);
+        setBookings([]);
         setTotalPages(1);
       }
     } catch (error) {
-      console.error("Error fetching schedules: ", error);
-      setSchedules([]);
+      console.error("Error fetching bookings:", error);
+      setBookings([]);
       setTotalPages(1);
-      toast.error("Error fetching schedules");
+      toast.error("Error fetching bookings");
     }
   };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -60,26 +75,11 @@ export default function DoctorSchedule() {
     navigate("/signin");
   };
 
-  const fetchDoctorName = async (doctorId) => {
-    try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data = await response.json();
-
-      return data.data.fullName;
-    } catch (error) {
-      console.error("Error fetching doctor name:", error);
-      return null;
-    }
-  };
-
-  const indexOfLastSchedule = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstSchedule = indexOfLastSchedule - ITEMS_PER_PAGE;
-  const currentSchedules = schedules.slice(
-    indexOfFirstSchedule,
-    indexOfLastSchedule
+  const indexOfLastBooking = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstBooking = indexOfLastBooking - ITEMS_PER_PAGE;
+  const currentBookings = bookings.slice(
+    indexOfFirstBooking,
+    indexOfLastBooking
   );
 
   return (
@@ -106,9 +106,7 @@ export default function DoctorSchedule() {
               <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
                 <div className="justify-content-md-end">
                   <div className="d-grid">
-                    {/* <Link to="/add-schedule" className="btn btn-primary">
-                      Add Schedule
-                    </Link> */}
+                    {/* Add Schedule button or other actions */}
                   </div>
                 </div>
               </div>
@@ -126,12 +124,7 @@ export default function DoctorSchedule() {
                         >
                           #
                         </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "180px" }}
-                        >
-                          Doctor
-                        </th>
+
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
@@ -140,39 +133,57 @@ export default function DoctorSchedule() {
                         </th>
                         <th
                           className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
+                          style={{ minWidth: "150px" }}
                         >
-                          Start Time
+                          Date
                         </th>
                         <th
                           className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
+                          style={{ minWidth: "180px" }}
                         >
-                          End Time
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          Slot Booking
+                          Time
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
-                        ></th>
+                        >
+                          Pet Name
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Pet Specie
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "220px" }}
+                        >
+                          Services
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {currentSchedules.map((schedule, index) => (
-                        <tr key={index}>
+                      {currentBookings.map((booking, index) => (
+                        <tr key={booking.bookingId}>
                           <td className="p-3">
-                            {indexOfFirstSchedule + index + 1}
+                            {indexOfFirstBooking + index + 1}
                           </td>
-                          <td className="p-3">{schedule.doctorName}</td>
-                          <td className="p-3">{schedule.roomNo}</td>
-                          <td className="p-3">{schedule.startTime}</td>
-                          <td className="p-3">{schedule.endTime}</td>
-                          <td className="p-3">{schedule.slotBooking}</td>
+                          <td className="p-3">{booking.schedule.roomNo}</td>
+                          <td className="p-3">
+                            {formatDate(booking.schedule.startTime)}
+                          </td>
+                          <td className="p-3">
+                            {formatTime(booking.schedule.startTime)} -{" "}
+                            {formatTime(booking.schedule.endTime)}
+                          </td>
+                          <td className="p-3">{booking.pet.name}</td>
+                          <td className="p-3">{booking.pet.species}</td>
+                          <td className="p-3">
+                            {booking.services.map(
+                              (service) => service.serviceName
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -185,9 +196,9 @@ export default function DoctorSchedule() {
               <div className="col-12 mt-4">
                 <div className="d-md-flex align-items-center text-center justify-content-between">
                   <span className="text-muted me-3">
-                    Showing {indexOfFirstSchedule + 1} -{" "}
-                    {Math.min(indexOfLastSchedule, schedules.length)} out of{" "}
-                    {schedules.length}
+                    Showing {indexOfFirstBooking + 1} -{" "}
+                    {Math.min(indexOfLastBooking, bookings.length)} out of{" "}
+                    {bookings.length}
                   </span>
                   <ul className="pagination justify-content-center mb-0 mt-3 mt-sm-0">
                     <li
@@ -253,3 +264,15 @@ export default function DoctorSchedule() {
     </div>
   );
 }
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+};
+
+const formatTime = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  return ` ${hours}:00`;
+};
