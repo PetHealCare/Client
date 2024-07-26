@@ -449,7 +449,7 @@ const formatTime = (dateString) => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
   const day = date.getDate();
-  const month = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
+  const month = date.getMonth() + 1;
   const year = date.getFullYear();
   const hours = date.getHours();
   return `${day}/${month}/${year} ${hours}:00`;

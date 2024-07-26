@@ -54,5 +54,5 @@ export const PAYMENT_API = {
 };
 
 export const PAYOS_API = {
-  CREATE: `${BASE_URL}/create-payment-link`,
+  CREATE: `https://localhost:7083/create-payment-link`,
 };
