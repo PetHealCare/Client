@@ -193,9 +193,9 @@ const BillPage = () => {
           accept: "*/*",
         },
         body: JSON.stringify({
-          bookingId: paymentId,
-          returnUrl: "https://www.localhost3000",
-          cancelUrl: "https://www.localhost3000",
+          paymentId: paymentId,
+          returnUrl: "http://localhost:3000",
+          cancelUrl: "http://localhost:3000",
         }),
       });
 
@@ -448,6 +448,9 @@ const formatDate = (dateString) => {
 const formatTime = (dateString) => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
+  const year = date.getFullYear();
   const hours = date.getHours();
-  return `${hours}:00`;
+  return `${day}/${month}/${year} ${hours}:00`;
 };
