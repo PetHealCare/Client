@@ -29,6 +29,7 @@ export const BOOKING_API = {
 
 export const DOCTOR_API = {
   MASTER: `${BASE_URL}/doctor`,
+  UPDATE_SERVICE: `${BASE_URL}/doctor/add/master-service`,
   GET_DETAILS: (userId) => `${BASE_URL}/Doctor/user/${userId}`,
 };
 

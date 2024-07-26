@@ -43,8 +43,6 @@ export default function DoctorSchedule() {
       const response = await fetch(`${BOOKING_API.MASTER}?${queryParams}`);
       const data = await response.json();
 
-      console.log("API Response Data:", data);
-
       if (Array.isArray(data)) {
         // Sort bookings from newest to oldest based on startTime
         const sortedBookings = data.sort(

@@ -46,7 +46,13 @@ export default function SidebarDoctor() {
             <li>
               <Link to="/doctor-schedule">
                 <i className="uil uil-stethoscope me-2 d-inline-block"></i>{" "}
-                Manage Schedule
+                Manage Schedules
+              </Link>
+            </li>
+            <li>
+              <Link to="/doctor-service">
+                <i className="uil uil-pathfinder me-2 d-inline-block"></i>{" "}
+                Manage Services
               </Link>
             </li>
             <li>
