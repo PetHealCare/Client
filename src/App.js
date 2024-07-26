@@ -32,6 +32,9 @@ import DoctorSchedule from "./Doctor/ManageSchedule/DoctorSchedule";
 import AddNewPet from "./Admin/ManagePet/AddNewPet";
 import UpdatePet from "./Customer/Profile/UpdatePet";
 import CreateBillPage from "./HomePage/Booking/CreateBillPage";
+import ProfileDoctor from "./Doctor/ManageSchedule/ProfileDoctor";
+import DoctorService from "./Doctor/ManageSchedule/DoctorService";
+import UpdateServiceDoctor from "./Doctor/ManageSchedule/UpdateServiceDoctor";
 
 function App() {
   return (
@@ -98,6 +101,13 @@ function App() {
             />
             <Route exact path="/doctor-schedule" element={<DoctorSchedule />} />
             <Route exact path="/create-bill" element={<CreateBillPage />} />
+            <Route exact path="/profile-doctor" element={<ProfileDoctor />} />
+            <Route exact path="/doctor-service" element={<DoctorService />} />
+            <Route
+              exact
+              path="/doctor-add-service"
+              element={<UpdateServiceDoctor />}
+            />
           </Routes>
         </Router>
       </AuthProvider>

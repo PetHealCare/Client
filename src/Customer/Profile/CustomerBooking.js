@@ -37,26 +37,23 @@ export default function CustomerBooking() {
             )
           : data;
 
-        const appointmentsWithData = await Promise.all(
-          filteredData.map(async (appointment) => {
-            try {
-              const customerResponse = await fetchCustomer(
-                appointment.customerId
-              );
-              const petResponse = await fetchPet(appointment.petId);
-
-              return {
-                ...appointment,
-                customerName: customerResponse.fullName,
-                customerPhoneNumber: customerResponse.phoneNumber,
-                petName: petResponse.data.name,
-              };
-            } catch (error) {
-              console.error("Error fetching details for appointment:", error);
-              return appointment;
-            }
-          })
-        );
+        const appointmentsWithData = filteredData.map((appointment) => {
+          const services = appointment.services.map(
+            (service) => service.serviceName
+          );
+          console.log(
+            `Appointment ${appointment.bookingId} Services:`,
+            services
+          );
+          return {
+            ...appointment,
+            startTime: appointment.schedule.startTime,
+            endTime: appointment.schedule.endTime,
+            doctor: appointment.doctor.fullName,
+            services,
+            petName: appointment.pet.name,
+          };
+        });
 
         setAppointments(appointmentsWithData);
       } else {
@@ -67,36 +64,6 @@ export default function CustomerBooking() {
       console.error("Error fetching appointments: ", error);
       setAppointments([]);
       toast.error("Error fetching appointments");
-    }
-  };
-
-  const fetchPet = async (petId) => {
-    try {
-      const response = await fetchWithAuth(PET_API.SINGLE(petId));
-      if (!response.ok) {
-        throw new Error(`Failed to fetch pet with ID ${petId}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching pets:", error);
-      toast.error("Error fetching pets");
-      throw error;
-    }
-  };
-
-  const fetchCustomer = async (customerId) => {
-    try {
-      const response = await fetchWithAuth(CUSTOMER_API.SINGLE(customerId));
-      if (!response.ok) {
-        throw new Error(`Failed to fetch customer with ID ${customerId}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-      toast.error("Error fetching customers");
-      throw error;
     }
   };
 
@@ -246,20 +213,26 @@ export default function CustomerBooking() {
                           className="border-bottom p-3"
                           style={{ minWidth: "180px" }}
                         >
-                          Customer
+                          PetName
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Phone
+                          Doctor
                         </th>
-                        <th className="border-bottom p-3">PetName</th>
+                        <th className="border-bottom p-3">Services</th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Date
+                          Appointment Date
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Time
                         </th>
                         <th
                           className="border-bottom p-3"
@@ -275,12 +248,18 @@ export default function CustomerBooking() {
                           <td className="p-3">
                             {indexOfFirstAppointment + index + 1}
                           </td>
-                          <td className="p-3">{appointment.customerName}</td>
-                          <td className="p-3">
-                            {appointment.customerPhoneNumber}
-                          </td>
                           <td className="p-3">{appointment.petName}</td>
-                          <td className="p-3">{appointment.bookingDate}</td>
+                          <td className="p-3">{appointment.doctor}</td>
+                          <td className="p-3">
+                            {appointment.services.join(", ")}
+                          </td>
+                          <td className="p-3">
+                            {formatDate(appointment.startTime)}
+                          </td>
+                          <td className="p-3">
+                            {formatTime(appointment.startTime)} -{" "}
+                            {formatTime(appointment.endTime)}
+                          </td>
                           <td className="p-3">{appointment.note}</td>
                         </tr>
                       ))}
@@ -367,3 +346,16 @@ export default function CustomerBooking() {
     </div>
   );
 }
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+};
+
+const formatTime = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  return ` ${hours}:00`;
+};

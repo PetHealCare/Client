@@ -29,6 +29,7 @@ export const BOOKING_API = {
 
 export const DOCTOR_API = {
   MASTER: `${BASE_URL}/doctor`,
+  UPDATE_SERVICE: `${BASE_URL}/doctor/add/master-service`,
   GET_DETAILS: (userId) => `${BASE_URL}/Doctor/user/${userId}`,
 };
 
@@ -51,4 +52,8 @@ export const BILL_API = {
 
 export const PAYMENT_API = {
   MASTER: `${BASE_URL}/Payment`,
+};
+
+export const PAYOS_API = {
+  CREATE: `${BASE_URL}/create-payment-link`,
 };

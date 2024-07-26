@@ -235,7 +235,7 @@ export default function RegisterPet() {
                         <div className="col-md-6">
                           <div className="mb-3">
                             <label className="form-label" htmlFor="pet-age">
-                              Pet Age
+                              Year of birth
                             </label>
                             <input
                               type="number"

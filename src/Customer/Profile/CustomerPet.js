@@ -175,7 +175,7 @@ export default function ManagePet() {
                         className="border-bottom p-3"
                         style={{ minWidth: "150px" }}
                       >
-                        Age
+                        Year of birth
                       </th>
                       <th
                         className="border-bottom p-3"

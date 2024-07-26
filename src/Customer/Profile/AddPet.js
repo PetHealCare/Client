@@ -221,7 +221,7 @@ export default function AddPet() {
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Age</label>
+                      <label className="form-label">Year of birth</label>
                       <input
                         type="number"
                         className="form-control"
