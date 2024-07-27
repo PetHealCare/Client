@@ -89,7 +89,7 @@ export default function ManagePetMedical() {
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Pet ID
+                          Pet Name
                         </th>
                         <th
                           className="border-bottom p-3"
@@ -127,7 +127,7 @@ export default function ManagePetMedical() {
                       {medicals.map((record, index) => (
                         <tr key={record.recordId}>
                           <td className="p-3">{index + 1}</td>
-                          <td className="p-3">{record.petId}</td>
+                          <td className="p-3">{record.petName}</td>
                           <td className="p-3">
                             {new Date(record.visitDate).toLocaleDateString()}
                           </td>
