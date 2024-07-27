@@ -209,7 +209,7 @@ export default function ManagePet() {
                         <th className="p-3">{index + 1}</th>
                         <td className="p-3">{pet.name}</td>
                         <td className="p-3">{pet.species}</td>
-                        <td className="p-3">{pet.age}</td>
+                        <td className="p-3">{pet.dob}</td>
                         <td className="p-3">
                           {pet.gender ? "Female" : "Male"}
                         </td>
