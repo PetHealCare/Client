@@ -394,14 +394,13 @@ export default function Booking() {
                               value={selectedPetId}
                               onChange={(e) => setSelectedPetId(e.target.value)}
                             >
-                              <option value="" disabled>
-                                Select Your Pet
-                              </option>
-                              {userPets.map((pet) => (
-                                <option key={pet.petId} value={pet.petId}>
-                                  {pet.name} - {pet.species}
-                                </option>
-                              ))}
+                              {userPets
+                                .filter((pet) => pet.status === true)
+                                .map((pet) => (
+                                  <option key={pet.petId} value={pet.petId}>
+                                    {pet.name} - {pet.species}
+                                  </option>
+                                ))}
                             </select>
                           </div>
                         </div>
