@@ -36,6 +36,8 @@ import ProfileDoctor from "./Doctor/ManageSchedule/ProfileDoctor";
 import DoctorService from "./Doctor/ManageSchedule/DoctorService";
 import UpdateServiceDoctor from "./Doctor/ManageSchedule/UpdateServiceDoctor";
 import PetMedical from "./Doctor/ManageSchedule/PetMedical";
+import ManagePetMedical from "./Doctor/ManageSchedule/ManagePetMedical";
+import UpdateMedical from "./Doctor/ManageSchedule/UpdateMedical.js";
 
 function App() {
   return (
@@ -109,6 +111,16 @@ function App() {
               element={<PetMedical />}
             />
             <Route exact path="/doctor-service" element={<DoctorService />} />
+            <Route
+              exact
+              path="/doctor-update-medical/:petId"
+              element={<UpdateMedical />}
+            />
+            <Route
+              exact
+              path="/doctor-pet-medical"
+              element={<ManagePetMedical />}
+            />
             <Route
               exact
               path="/doctor-add-service"

@@ -187,9 +187,9 @@ export default function DoctorSchedule() {
                           <td className="p-3">{booking.pet.name}</td>
                           <td className="p-3">{booking.pet.species}</td>
                           <td className="p-3">
-                            {booking.services.map(
-                              (service) => service.serviceName
-                            )}
+                            {booking.services
+                              .map((service) => service.serviceName)
+                              .join(", ")}
                           </td>
                           <td className="p-3">
                             {isToday(booking.schedule.startTime) && (

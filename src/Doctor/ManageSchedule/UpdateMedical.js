@@ -8,9 +8,9 @@ import TopHeader from "../../Components/Sidebar/TopHeader";
 import { MEDICAL_RECORD_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 
-const PetMedical = () => {
+const UpdateMedical = () => {
   const { petId } = useParams();
-  const [visitDateTime, setVisitDateTime] = useState(getCurrentDateTime());
+  const [visitDateTime, setVisitDateTime] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [treatment, setTreatment] = useState("");
   const [notes, setNotes] = useState("");
@@ -18,12 +18,36 @@ const PetMedical = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    setVisitDateTime(getCurrentDateTime());
-  }, []);
+    if (petId) {
+      fetchMedicalRecord();
+    }
+  }, [petId]);
+
+  const fetchMedicalRecord = async () => {
+    try {
+      const response = await fetchWithAuth(
+        `${MEDICAL_RECORD_API.MASTER}/${petId}`
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setVisitDateTime(data.visitDate || "");
+        setDiagnosis(data.diagnosis || "");
+        setTreatment(data.treatment || "");
+        setNotes(data.notes || "");
+      } else {
+        toast.error("Error fetching medical record.");
+        console.log("Error fetching medical record:", data);
+      }
+    } catch (error) {
+      toast.error("Error fetching medical record.");
+      console.log("Error fetching medical record:", error);
+    }
+  };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const newMedicalRecord = {
+    const updatedMedicalRecord = {
       petId,
       doctorId: user.data.doctorId,
       visitDate: visitDateTime,
@@ -33,23 +57,25 @@ const PetMedical = () => {
     };
 
     try {
-      const response = await fetchWithAuth(`${MEDICAL_RECORD_API.MASTER}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMedicalRecord),
-      });
+      const response = await fetchWithAuth(
+        `${MEDICAL_RECORD_API.MASTER}/${petId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedMedicalRecord),
+        }
+      );
+
       if (response.ok) {
-        toast.success("Medical record created successfully!");
-        setTimeout(() => navigate("/medical-records"), 1000);
+        toast.success("Medical record updated successfully!");
+        setTimeout(() => navigate("/doctor-pet-medical"), 1000);
       } else {
-        toast.error("Error creating medical record. Please try again.");
-        console.log("Error creating medical record:", response.statusText);
+        console.log("Error updating medical record:", response.statusText);
       }
     } catch (error) {
-      toast.error("Error creating medical record. Please try again.");
-      console.log("Error creating medical record:", error);
+      console.log("Error updating medical record:", error);
     }
   };
 
@@ -65,17 +91,22 @@ const PetMedical = () => {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-lg-6 col-md-4">
-                <h5 className="mb-0">Create Medical Record</h5>
+                <h5 className="mb-0">Update Medical Record</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
                       <Link to="/medical-records">Medical Records</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Create
+                      Update
                     </li>
                   </ul>
                 </nav>
+              </div>
+              <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
+                <Link to="/doctor-pet-medical" className="btn btn-primary">
+                  Back to Medical Records
+                </Link>
               </div>
             </div>
 
@@ -159,7 +190,7 @@ const PetMedical = () => {
                             id="submit"
                             name="send"
                             className="btn btn-primary"
-                            value="Create Medical Record"
+                            value="Update Medical Record"
                           />
                         </div>
                       </div>
@@ -189,9 +220,4 @@ const PetMedical = () => {
   );
 };
 
-export default PetMedical;
-
-const getCurrentDateTime = () => {
-  const now = new Date();
-  return now.toISOString();
-};
+export default UpdateMedical;
