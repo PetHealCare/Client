@@ -197,6 +197,12 @@ export default function ManagePet() {
                       </th>
                       <th
                         className="border-bottom p-3"
+                        style={{ minWidth: "250px" }}
+                      >
+                        Status
+                      </th>
+                      <th
+                        className="border-bottom p-3"
                         style={{ minWidth: "150px" }}
                       >
                         Actions
@@ -215,6 +221,7 @@ export default function ManagePet() {
                         </td>
                         <td className="p-3">{pet.generic}</td>
                         <td className="p-3">{pet.description}</td>
+                        <td className="p-3">{pet.status ? "Active" : "InActive"}</td>
                         <td className="p-3">
                           <Link
                             to={`/update-pet-cust/${pet.petId}`}

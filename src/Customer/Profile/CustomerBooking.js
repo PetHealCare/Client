@@ -226,7 +226,7 @@ export default function CustomerBooking() {
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Appointment Date
+                         Date
                         </th>
                         <th
                           className="border-bottom p-3"
