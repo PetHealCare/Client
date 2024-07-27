@@ -14,7 +14,7 @@ export default function UpdatePet() {
 
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
-  const [age, setAge] = useState("");
+  const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
@@ -31,7 +31,7 @@ export default function UpdatePet() {
           console.log("Fetched Pet Data:", data); // Debugging
           setName(data.data.name);
           setSpecies(data.data.species);
-          setAge(data.data.age.toString());
+          setDob(data.data.dob.split('T')[0]); // Ensure dob is in YYYY-MM-DD format
           setGender(data.data.gender.toString());
           setGeneric(data.data.generic);
           setDescription(data.data.description);
@@ -48,10 +48,23 @@ export default function UpdatePet() {
     fetchPetData();
   }, [petId]);
 
+  const calculateAge = (dobString) => {
+    const dob = new Date(dobString);
+    const currentDate = new Date();
+    let age = currentDate.getFullYear() - dob.getFullYear();
+    const monthDifference = currentDate.getMonth() - dob.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !species || !age || !generic || !description) {
+    if (!name || !species || !dob || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
@@ -61,7 +74,8 @@ export default function UpdatePet() {
         name,
         species,
         customerId: user.customerId,
-        age: parseInt(age),
+        age: calculateAge(dob),
+        dob,
         generic,
         description,
       };
@@ -198,7 +212,7 @@ export default function UpdatePet() {
               <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                 <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                   <li className="breadcrumb-item">
-                    <a href="index.html">Doctris</a>
+                    <a href="#">Doctris</a>
                   </li>
                   <li className="breadcrumb-item active" aria-current="page">
                     Update Pet
@@ -250,16 +264,16 @@ export default function UpdatePet() {
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Year of birth</label>
+                      <label className="form-label">Date of Birth</label>
                       <input
-                        type="number"
+                        type="date"
                         className="form-control"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      {/* <label className="form-label">Gender</label>
+                      <label className="form-label">Gender</label>
                       <select
                         className="form-select"
                         value={gender}
@@ -268,7 +282,7 @@ export default function UpdatePet() {
                         <option value="">Select Gender</option>
                         <option value="true">Male</option>
                         <option value="false">Female</option>
-                      </select> */}
+                      </select>
                     </div>
                   </div>
                   <div className="row">

@@ -191,7 +191,7 @@ export default function ManagePet() {
                             {pet.status ? "Active" : "Inactive"}
                           </td>
                           <td className="p-3">{pet.customerId}</td>
-                          <td className="p-3">{pet.age}</td>
+                          <td className="p-3">{pet.dob}</td>
                           <td className="p-3">
                             {pet.gender ? "Male" : "Female"}
                           </td>
