@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useAuth } from "../../Components/Login/Authen";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, PET_API } from "../../apiEndpoint";
+import { PET_API } from "../../apiEndpoint";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 import { fetchWithAuth } from "../../utils/apiUtils";
 
@@ -21,6 +21,19 @@ export default function AddPet() {
     // Fetch species options if needed
   }, []);
 
+  const calculateAge = (dobString) => {
+    const dob = new Date(dobString);
+    const currentDate = new Date();
+    let age = currentDate.getFullYear() - dob.getFullYear();
+    const monthDifference = currentDate.getMonth() - dob.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -35,7 +48,8 @@ export default function AddPet() {
         species: species,
         status: true, // Assuming status is always true for new registrations
         customerId: user.customerId,
-        dob: parseInt(dob),
+        age: calculateAge(dob),
+        dob: dob,
         gender: gender === "true", // Convert gender to boolean
         generic: generic,
         description: description,
@@ -55,40 +69,40 @@ export default function AddPet() {
       } else {
         const errorText = await response.text();
         console.error("Error registering pet:", response.status, errorText);
-        toast.error("Error registering pet: " + errorText); // Display error messdob from backend
+        toast.error("Error registering pet: " + errorText); // Display error message from backend
       }
     } catch (error) {
       console.error("Error registering pet:", error);
-      toast.error("Error registering pet: " + error.messdob); // Display error messdob
+      toast.error("Error registering pet: " + error.message); // Display error message
     }
   };
 
   return (
-    <div className="pdob-wrapper doctris-theme toggled">
+    <div className="page-wrapper doctris-theme toggled">
       {/* Sidebar */}
       <SidebarCustomer />
 
       {/* Main Content */}
-      <div className="pdob-content bg-light" style={{ marginTop: "10px" }}>
+      <div className="page-content bg-light" style={{ marginTop: "10px" }}>
         <div className="top-header">
           <div className="header-bar d-flex justify-content-between border-bottom">
             <div className="d-flex align-items-center">
               <a href="#" className="logo-icon">
                 <img
-                  src="../assets/imdobs/logo-icon.png"
+                  src="../assets/images/logo-icon.png"
                   height="30"
                   className="small"
                   alt=""
                 />
                 <span className="big">
                   <img
-                    src="../assets/imdobs/logo-dark.png"
+                    src="../assets/images/logo-dark.png"
                     height="22"
                     className="logo-light-mode"
                     alt=""
                   />
                   <img
-                    src="../assets/imdobs/logo-light.png"
+                    src="../assets/images/logo-light.png"
                     height="22"
                     className="logo-dark-mode"
                     alt=""
@@ -171,7 +185,7 @@ export default function AddPet() {
                   <li className="breadcrumb-item">
                     <a href="index.html">Doctris</a>
                   </li>
-                  <li className="breadcrumb-item active" aria-current="pdob">
+                  <li className="breadcrumb-item active" aria-current="page">
                     Register New Pet
                   </li>
                 </ul>
@@ -221,9 +235,9 @@ export default function AddPet() {
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Year of birth</label>
+                      <label className="form-label">Date of Birth</label>
                       <input
-                        type="number"
+                        type="date"
                         className="form-control"
                         value={dob}
                         onChange={(e) => setDob(e.target.value)}
