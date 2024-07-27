@@ -6,6 +6,7 @@ import { DOCTOR_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function DoctorService() {
   const { user, logout } = useAuth();
@@ -20,7 +21,7 @@ export default function DoctorService() {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${DOCTOR_API.MASTER}/${user.data.doctorId}`
       );
 

@@ -6,6 +6,7 @@ import { DOCTOR_API, SERVICE_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 export default function UpdateServiceDoctor() {
   const { user } = useAuth();
@@ -21,7 +22,7 @@ export default function UpdateServiceDoctor() {
 
   const fetchServices = async () => {
     try {
-      const response = await fetch(SERVICE_API.MASTER);
+      const response = await fetchWithAuth(SERVICE_API.MASTER);
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -47,7 +48,7 @@ export default function UpdateServiceDoctor() {
     }
 
     try {
-      const response = await fetch(`${DOCTOR_API.UPDATE_SERVICE}`, {
+      const response = await fetchWithAuth(`${DOCTOR_API.UPDATE_SERVICE}`, {
         method: "POST", // Change from PUT to POST if required
         headers: {
           "Content-Type": "application/json",

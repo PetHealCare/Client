@@ -1,79 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../Components/Login/Authen";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchWithAuth } from "../../utils/apiUtils";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
 import TopHeader from "../../Components/Sidebar/TopHeader";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { MEDICAL_RECORD_API } from "../../apiEndpoint";
 
-const ProfileDoctor = () => {
-  const [doctor, setDoctor] = useState({});
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [speciality, setSpeciality] = useState("");
-  const { user, logout } = useAuth();
+const PetMedical = () => {
+  const [petId, setPetId] = useState(0);
+  const [doctorId, setDoctorId] = useState(0);
+  const [visitDate, setVisitDate] = useState(new Date().toISOString());
+  const [diagnosis, setDiagnosis] = useState("");
+  const [treatment, setTreatment] = useState("");
+  const [notes, setNotes] = useState("");
   const navigate = useNavigate();
-  const doctorId = user.data.doctorId;
-
-  useEffect(() => {
-    if (doctorId) {
-      fetchDoctorDetails(doctorId);
-    }
-  }, [doctorId]);
-
-  const fetchDoctorDetails = async (doctorId) => {
-    try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
-      const data = await response.json();
-      const doctorData = data.data;
-      setDoctor(doctorData);
-      setFullName(doctorData.fullName);
-      setPhoneNumber(doctorData.phoneNumber);
-      setPassword(doctorData.email);
-      setSpeciality(doctorData.speciality);
-    } catch (error) {
-      console.log("Error fetching doctor details: ", error);
-    }
-  };
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const updatedDoctor = {
-      doctorId: doctorId,
-      fullName,
-      phoneNumber,
-      speciality,
-      password, // Include password in the update payload
+    const newMedicalRecord = {
+      petId,
+      doctorId,
+      visitDate,
+      diagnosis,
+      treatment,
+      notes,
     };
 
     try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`, {
-        method: "PUT",
+      const response = await fetchWithAuth(`${MEDICAL_RECORD_API.MASTER}`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedDoctor),
+        body: JSON.stringify(newMedicalRecord),
       });
       if (response.ok) {
-        const data = await response.json();
-        toast.success("Doctor updated successfully!");
-        setTimeout(() => navigate("/doctor-schedule"), 1000);
+        toast.success("Medical record created successfully!");
+        setTimeout(() => navigate("/medical-records"), 1000);
       } else {
-        toast.error("Error updating doctor. Please try again.");
-        console.log("Error updating doctor:", response.statusText);
+        toast.error("Error creating medical record. Please try again.");
+        console.log("Error creating medical record:", response.statusText);
       }
     } catch (error) {
-      toast.error("Error updating doctor. Please try again.");
-      console.log("Error updating doctor:", error);
+      toast.error("Error creating medical record. Please try again.");
+      console.log("Error creating medical record:", error);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/signin"); // Redirect to sign-in page
   };
 
   return (
@@ -85,14 +57,14 @@ const ProfileDoctor = () => {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-lg-6 col-md-4">
-                <h5 className="mb-0">Profile</h5>
+                <h5 className="mb-0">Create Medical Record</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
-                      <Link to="/doctor-schedule">Doctors</Link>
+                      <Link to="/medical-records">Medical Records</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Profile
+                      Create
                     </li>
                   </ul>
                 </nav>
@@ -103,7 +75,9 @@ const ProfileDoctor = () => {
               <div className="col-12 mt-4">
                 <div className="rounded shadow mt-4">
                   <div className="p-4 border-bottom">
-                    <h5 className="mb-0 text-center">Personal Information:</h5>
+                    <h5 className="mb-0 text-center">
+                      Medical Record Information:
+                    </h5>
                   </div>
 
                   <div className="p-4">
@@ -115,52 +89,80 @@ const ProfileDoctor = () => {
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Full Name</label>
+                            <label className="form-label">Pet ID</label>
                             <input
-                              name="fullName"
-                              type="text"
+                              name="petId"
+                              type="number"
                               className="form-control"
-                              value={fullName}
-                              onChange={(e) => setFullName(e.target.value)}
+                              value={petId}
+                              onChange={(e) => setPetId(Number(e.target.value))}
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Phone Number</label>
+                            <label className="form-label">Doctor ID</label>
                             <input
-                              name="phoneNumber"
-                              type="text"
+                              name="doctorId"
+                              type="number"
                               className="form-control"
-                              value={phoneNumber}
-                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              value={doctorId}
+                              onChange={(e) =>
+                                setDoctorId(Number(e.target.value))
+                              }
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Speciality</label>
+                            <label className="form-label">Visit Date</label>
                             <input
-                              name="speciality"
-                              type="text"
+                              name="visitDate"
+                              type="datetime-local"
                               className="form-control"
-                              value={speciality}
-                              onChange={(e) => setSpeciality(e.target.value)}
+                              value={visitDate}
+                              onChange={(e) => setVisitDate(e.target.value)}
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Password</label>
+                            <label className="form-label">Diagnosis</label>
                             <input
-                              name="password"
-                              type="password"
+                              name="diagnosis"
+                              type="text"
                               className="form-control"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
+                              value={diagnosis}
+                              onChange={(e) => setDiagnosis(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Treatment</label>
+                            <input
+                              name="treatment"
+                              type="text"
+                              className="form-control"
+                              value={treatment}
+                              onChange={(e) => setTreatment(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Notes</label>
+                            <input
+                              name="notes"
+                              type="text"
+                              className="form-control"
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
                             />
                           </div>
                         </div>
@@ -173,7 +175,7 @@ const ProfileDoctor = () => {
                             id="submit"
                             name="send"
                             className="btn btn-primary"
-                            value="Save Changes"
+                            value="Create Medical Record"
                           />
                         </div>
                       </div>
@@ -203,4 +205,4 @@ const ProfileDoctor = () => {
   );
 };
 
-export default ProfileDoctor;
+export default PetMedical;

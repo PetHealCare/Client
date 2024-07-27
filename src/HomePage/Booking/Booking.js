@@ -14,6 +14,7 @@ import {
   SCHEDULE_API,
   SERVICE_API,
 } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const timeslots = [
   { start: "08:00", end: "10:00", slotBooking: 1, label: "8:00 - 10:00" },
@@ -73,7 +74,7 @@ export default function Booking() {
 
   const fetchServices = async (doctorId) => {
     try {
-      const response = await fetch(`${DOCTOR_API.MASTER}/${doctorId}`);
+      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
       const data = await response.json();
       setServices(data.data.serviceList || []);
     } catch (error) {
@@ -83,7 +84,7 @@ export default function Booking() {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch(DOCTOR_API.MASTER);
+      const response = await fetchWithAuth(DOCTOR_API.MASTER);
       const data = await response.json();
       setDoctors(data.data.items || []);
     } catch (error) {
@@ -93,7 +94,7 @@ export default function Booking() {
 
   const fetchUserPets = async () => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${PET_API.MASTER}?CustomerId=${user.customerId}`
       );
       const data = await response.json();
@@ -105,7 +106,7 @@ export default function Booking() {
 
   const fetchAvailableSchedules = async (doctorId, date) => {
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${SCHEDULE_API.MASTER}?doctorId=${doctorId}`
       );
       const data = await response.json();
@@ -206,7 +207,7 @@ export default function Booking() {
     }
 
     try {
-      const response = await fetch(BOOKING_API.CREATE_BOOKING_SERVICE, {
+      const response = await fetchWithAuth(BOOKING_API.CREATE_BOOKING_SERVICE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
