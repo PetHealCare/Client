@@ -12,7 +12,7 @@ export default function AddPet() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
-  const [age, setAge] = useState("");
+  const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
@@ -24,7 +24,7 @@ export default function AddPet() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !species || !age || !gender || !generic || !description) {
+    if (!name || !species || !dob || !gender || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
@@ -35,7 +35,7 @@ export default function AddPet() {
         species: species,
         status: true, // Assuming status is always true for new registrations
         customerId: user.customerId,
-        age: parseInt(age),
+        dob: parseInt(dob),
         gender: gender === "true", // Convert gender to boolean
         generic: generic,
         description: description,
@@ -55,40 +55,40 @@ export default function AddPet() {
       } else {
         const errorText = await response.text();
         console.error("Error registering pet:", response.status, errorText);
-        toast.error("Error registering pet: " + errorText); // Display error message from backend
+        toast.error("Error registering pet: " + errorText); // Display error messdob from backend
       }
     } catch (error) {
       console.error("Error registering pet:", error);
-      toast.error("Error registering pet: " + error.message); // Display error message
+      toast.error("Error registering pet: " + error.messdob); // Display error messdob
     }
   };
 
   return (
-    <div className="page-wrapper doctris-theme toggled">
+    <div className="pdob-wrapper doctris-theme toggled">
       {/* Sidebar */}
       <SidebarCustomer />
 
       {/* Main Content */}
-      <div className="page-content bg-light" style={{ marginTop: "10px" }}>
+      <div className="pdob-content bg-light" style={{ marginTop: "10px" }}>
         <div className="top-header">
           <div className="header-bar d-flex justify-content-between border-bottom">
             <div className="d-flex align-items-center">
               <a href="#" className="logo-icon">
                 <img
-                  src="../assets/images/logo-icon.png"
+                  src="../assets/imdobs/logo-icon.png"
                   height="30"
                   className="small"
                   alt=""
                 />
                 <span className="big">
                   <img
-                    src="../assets/images/logo-dark.png"
+                    src="../assets/imdobs/logo-dark.png"
                     height="22"
                     className="logo-light-mode"
                     alt=""
                   />
                   <img
-                    src="../assets/images/logo-light.png"
+                    src="../assets/imdobs/logo-light.png"
                     height="22"
                     className="logo-dark-mode"
                     alt=""
@@ -171,7 +171,7 @@ export default function AddPet() {
                   <li className="breadcrumb-item">
                     <a href="index.html">Doctris</a>
                   </li>
-                  <li className="breadcrumb-item active" aria-current="page">
+                  <li className="breadcrumb-item active" aria-current="pdob">
                     Register New Pet
                   </li>
                 </ul>
@@ -225,8 +225,8 @@ export default function AddPet() {
                       <input
                         type="number"
                         className="form-control"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
                       />
                     </div>
                     <div className="col-md-6 mb-3">

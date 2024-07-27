@@ -19,6 +19,7 @@ export default function UpdatePet() {
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(true);
 
   useEffect(() => {
     // Fetch existing pet data to pre-fill the form
@@ -28,13 +29,14 @@ export default function UpdatePet() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched Pet Data:", data); // Debugging
+          console.log("Fetched Pet Data:", data);
           setName(data.data.name);
           setSpecies(data.data.species);
-          setDob(data.data.dob.split('T')[0]); // Ensure dob is in YYYY-MM-DD format
+          setDob(data.data.dob.split("T")[0]); // Ensure dob is in YYYY-MM-DD format
           setGender(data.data.gender.toString());
           setGeneric(data.data.generic);
           setDescription(data.data.description);
+          setStatus(data.data.status);
         } else {
           toast.error("Failed to fetch pet data.");
         }
@@ -48,19 +50,6 @@ export default function UpdatePet() {
     fetchPetData();
   }, [petId]);
 
-  const calculateAge = (dobString) => {
-    const dob = new Date(dobString);
-    const currentDate = new Date();
-    let age = currentDate.getFullYear() - dob.getFullYear();
-    const monthDifference = currentDate.getMonth() - dob.getMonth();
-
-    if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < dob.getDate())) {
-      age--;
-    }
-
-    return age;
-  };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,14 +60,15 @@ export default function UpdatePet() {
 
     try {
       const petData = {
+        petId: petId,
         name,
         species,
-        customerId: user.customerId,
-        age: calculateAge(dob),
-        dob,
+        dob: new Date(dob).toISOString(),
         generic,
         description,
+        status,
       };
+      console.log("Pet data", petData);
 
       const response = await fetchWithAuth(`${PET_API.MASTER}/${petId}`, {
         method: "PUT",
@@ -302,6 +292,19 @@ export default function UpdatePet() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                       ></textarea>
+                    </div>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Status</label>
+                        <select
+                          className="form-select"
+                          value={status ? "true" : "false"}
+                          onChange={(e) => setStatus(e.target.value === "true")}
+                        >
+                          <option value="true">Active</option>
+                          <option value="false">Inactive</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                   <div className="col-md-12 text-end">
