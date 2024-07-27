@@ -57,3 +57,7 @@ export const PAYMENT_API = {
 export const PAYOS_API = {
   CREATE: `${BASE_URL}/create-payment-link`,
 };
+
+export const MEDICAL_RECORD_API = {
+  MASTER: `${BASE_URL}/MedicalRecord`,
+};

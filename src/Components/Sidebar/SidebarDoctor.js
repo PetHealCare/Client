@@ -56,10 +56,10 @@ export default function SidebarDoctor() {
               </Link>
             </li>
             <li>
-              {/* <Link to="/customer-service">
-                <i className="uil uil-user me-2 d-inline-block"></i>Manage
-                Service
-              </Link> */}
+              <Link to="/doctor-pet-medical">
+                <i className="uil uil-clipboard me-2 d-inline-block"></i> Manage
+                Medical Record
+              </Link>
             </li>
             {/* <li><Link to="/manage-pet"><i className="uil uil-wheelchair me-2 d-inline-block"></i>Manage Pet</Link></li>
                         <li><a href="manage-booking.html"><i className="uil uil-apps me-2 d-inline-block"></i>Manage Booking</a></li> */}

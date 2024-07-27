@@ -2,41 +2,46 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { MEDICAL_RECORD_API } from "../../apiEndpoint"; // Ensure this is the correct endpoint
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
 import { fetchWithAuth } from "../../utils/apiUtils";
 
-export default function DoctorService() {
+export default function ManagePetMedical() {
   const { user, logout } = useAuth();
-  const [services, setServices] = useState([]);
+  const [medicals, setMedicals] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      fetchServices();
+    if (user && user.data && user.data.doctorId) {
+      fetchMedicals();
+    } else {
+      console.error("User data or doctorId is missing.");
     }
   }, [user]);
 
-  const fetchServices = async () => {
+  const fetchMedicals = async () => {
     try {
       const response = await fetchWithAuth(
-        `${DOCTOR_API.MASTER}/${user.data.doctorId}`
+        `${MEDICAL_RECORD_API.MASTER}?DoctorId=${user.data.doctorId}`
       );
-
       const data = await response.json();
-      console.log("data", data);
-      if (data.success && data.data) {
-        setServices(data.data.serviceList || []);
+      console.log("Fetched medical data:", data);
+
+      if (Array.isArray(data)) {
+        setMedicals(data);
+      } else if (data && typeof data === "object") {
+        setMedicals([data]);
+      } else if (data && Array.isArray(data.data)) {
+        setMedicals(data.data);
       } else {
-        console.error("Data is not in expected format:", data);
-        setServices([]);
+        console.error("Unexpected data format:", data);
+        setMedicals([]);
       }
     } catch (error) {
-      console.error("Error fetching services:", error);
-      setServices([]);
-      toast.error("Error fetching services");
+      console.error("Error fetching medical records:", error);
+      setMedicals([]);
     }
   };
 
@@ -54,22 +59,17 @@ export default function DoctorService() {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-lg-6 col-md-4">
-                <h5 className="mb-0">Services</h5>
+                <h5 className="mb-0">Pet Medical Records</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
                       <Link to="/doctor-schedule">Doctris</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Services
+                      Medical Records
                     </li>
                   </ul>
                 </nav>
-              </div>
-              <div className="col-xl-3 col-md-6 mt-4 mt-md-0 text-md-end">
-                <Link to="/doctor-add-service" className="btn btn-primary">
-                  Add Service
-                </Link>
               </div>
             </div>
 
@@ -89,36 +89,63 @@ export default function DoctorService() {
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Service Name
+                          Pet ID
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Description
+                          Visit Date
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Limit Time (mins)
+                          Diagnosis
                         </th>
                         <th
                           className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
+                          style={{ minWidth: "150px" }}
                         >
-                          Price ($)
+                          Treatment
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Notes
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Action
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {services.map((service, index) => (
-                        <tr key={service.serviceId}>
+                      {medicals.map((record, index) => (
+                        <tr key={record.recordId}>
                           <td className="p-3">{index + 1}</td>
-                          <td className="p-3">{service.serviceName}</td>
-                          <td className="p-3">{service.description}</td>
-                          <td className="p-3">{service.limitTime}</td>
-                          <td className="p-3">{service.price}</td>
+                          <td className="p-3">{record.petId}</td>
+                          <td className="p-3">
+                            {new Date(record.visitDate).toLocaleDateString()}
+                          </td>
+                          <td className="p-3">{record.diagnosis || "N/A"}</td>
+                          <td className="p-3">{record.treatment || "N/A"}</td>
+                          <td className="p-3">{record.notes || "N/A"}</td>
+                          <td className="p-3">
+                            <button
+                              className="btn btn-primary"
+                              onClick={() =>
+                                navigate(
+                                  `/doctor-update-medical/${record.recordId}`
+                                )
+                              }
+                            >
+                              Update
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

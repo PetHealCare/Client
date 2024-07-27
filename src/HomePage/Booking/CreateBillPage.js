@@ -11,6 +11,7 @@ import {
   PAYMENT_API,
   PAYOS_API,
 } from "../../apiEndpoint";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const BillPage = () => {
   const { user } = useAuth();
@@ -21,7 +22,7 @@ const BillPage = () => {
   useEffect(() => {
     const fetchLatestBooking = async () => {
       try {
-        const response = await fetch(BOOKING_API.MASTER);
+        const response = await fetchWithAuth(BOOKING_API.MASTER);
         const data = await response.json();
 
         if (!response.ok) {
@@ -63,7 +64,9 @@ const BillPage = () => {
   const fetchBookingDetails = async (bookingId) => {
     try {
       console.log(("fetch detail", bookingId));
-      const response = await fetch(`${BOOKING_API.MASTER}/${bookingId}`);
+      const response = await fetchWithAuth(
+        `${BOOKING_API.MASTER}/${bookingId}`
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -96,7 +99,7 @@ const BillPage = () => {
       };
 
       // Create bill
-      const billResponse = await fetch(`${BILL_API.MASTER}`, {
+      const billResponse = await fetchWithAuth(`${BILL_API.MASTER}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +116,7 @@ const BillPage = () => {
       const createdBillId = billResponseData.billId;
 
       // Fetch the latest bills
-      const latestBillResponse = await fetch(`${BILL_API.MASTER}`);
+      const latestBillResponse = await fetchWithAuth(`${BILL_API.MASTER}`);
       if (!latestBillResponse.ok) {
         const errorText = await latestBillResponse.text();
         throw new Error(`Error fetching latest bill: ${errorText}`);
@@ -135,7 +138,7 @@ const BillPage = () => {
 
       console.log("paymentdata", paymentData);
 
-      const paymentResponse = await fetch(`${PAYMENT_API.MASTER}`, {
+      const paymentResponse = await fetchWithAuth(`${PAYMENT_API.MASTER}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +152,9 @@ const BillPage = () => {
       }
 
       // Fetch the latest payments
-      const latestPaymentResponse = await fetch(`${PAYMENT_API.MASTER}`);
+      const latestPaymentResponse = await fetchWithAuth(
+        `${PAYMENT_API.MASTER}`
+      );
       if (!latestPaymentResponse.ok) {
         const errorText = await latestPaymentResponse.text();
         throw new Error(`Error fetching latest payment: ${errorText}`);
@@ -186,7 +191,7 @@ const BillPage = () => {
 
   const createPaymentLink = async (paymentId) => {
     try {
-      const response = await fetch(`${PAYOS_API.CREATE}`, {
+      const response = await fetchWithAuth(`${PAYOS_API.CREATE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -220,7 +225,7 @@ const BillPage = () => {
     }
 
     try {
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${BOOKING_API.MASTER}/${bookingDetails.bookingId}`,
         {
           method: "DELETE",

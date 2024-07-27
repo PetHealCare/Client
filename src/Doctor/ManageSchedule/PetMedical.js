@@ -1,81 +1,61 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../Components/Login/Authen";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { fetchWithAuth } from "../../utils/apiUtils";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
 import TopHeader from "../../Components/Sidebar/TopHeader";
-import { DOCTOR_API } from "../../apiEndpoint";
+import { MEDICAL_RECORD_API } from "../../apiEndpoint";
+import { useAuth } from "../../Components/Login/Authen";
 
-const ProfileDoctor = () => {
-  const [doctor, setDoctor] = useState({});
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [speciality, setSpeciality] = useState("");
-  const { user, logout } = useAuth();
+const PetMedical = () => {
+  const { petId } = useParams();
+  const [visitDateTime, setVisitDateTime] = useState(getCurrentDateTime());
+  const [diagnosis, setDiagnosis] = useState("");
+  const [treatment, setTreatment] = useState("");
+  const [notes, setNotes] = useState("");
   const navigate = useNavigate();
-  const doctorId = user.data.doctorId;
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (doctorId) {
-      fetchDoctorDetails(doctorId);
-    }
-  }, [doctorId]);
-
-  const fetchDoctorDetails = async (doctorId) => {
-    try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`);
-      const data = await response.json();
-      const doctorData = data.data;
-      setDoctor(doctorData);
-      setFullName(doctorData.fullName);
-      setPhoneNumber(doctorData.phoneNumber);
-      setPassword(doctorData.email);
-      setSpeciality(doctorData.speciality);
-    } catch (error) {
-      console.log("Error fetching doctor details: ", error);
-    }
-  };
+    setVisitDateTime(getCurrentDateTime());
+  }, []);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    const updatedDoctor = {
-      doctorId: doctorId,
-      fullName,
-      phoneNumber,
-      speciality,
-      password, // Include password in the update payload
+    const newMedicalRecord = {
+      petId,
+      doctorId: user.data.doctorId,
+      visitDate: visitDateTime,
+      diagnosis,
+      treatment,
+      notes,
     };
 
     try {
-      const response = await fetchWithAuth(`${DOCTOR_API.MASTER}/${doctorId}`, {
-        method: "PUT",
+      const response = await fetchWithAuth(`${MEDICAL_RECORD_API.MASTER}`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedDoctor),
+        body: JSON.stringify(newMedicalRecord),
       });
       if (response.ok) {
-        const data = await response.json();
-        toast.success("Doctor updated successfully!");
-        setTimeout(() => navigate("/doctor-schedule"), 1000);
+        toast.success("Medical record created successfully!");
+        setTimeout(() => navigate("/medical-records"), 1000);
       } else {
-        toast.error("Error updating doctor. Please try again.");
-        console.log("Error updating doctor:", response.statusText);
+        toast.error("Error creating medical record. Please try again.");
+        console.log("Error creating medical record:", response.statusText);
       }
     } catch (error) {
-      toast.error("Error updating doctor. Please try again.");
-      console.log("Error updating doctor:", error);
+      toast.error("Error creating medical record. Please try again.");
+      console.log("Error creating medical record:", error);
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/signin"); // Redirect to sign-in page
+  const handleDateChange = (event) => {
+    setVisitDateTime(event.target.value);
   };
-
   return (
     <div className="page-wrapper doctris-theme toggled">
       <SidebarDoctor />
@@ -85,14 +65,14 @@ const ProfileDoctor = () => {
           <div className="layout-specing">
             <div className="row">
               <div className="col-xl-9 col-lg-6 col-md-4">
-                <h5 className="mb-0">Profile</h5>
+                <h5 className="mb-0">Create Medical Record</h5>
                 <nav aria-label="breadcrumb" className="d-inline-block mt-2">
                   <ul className="breadcrumb breadcrumb-muted bg-transparent rounded mb-0 p-0">
                     <li className="breadcrumb-item">
-                      <Link to="/doctor-schedule">Doctors</Link>
+                      <Link to="/medical-records">Medical Records</Link>
                     </li>
                     <li className="breadcrumb-item active" aria-current="page">
-                      Profile
+                      Create
                     </li>
                   </ul>
                 </nav>
@@ -103,7 +83,9 @@ const ProfileDoctor = () => {
               <div className="col-12 mt-4">
                 <div className="rounded shadow mt-4">
                   <div className="p-4 border-bottom">
-                    <h5 className="mb-0 text-center">Personal Information:</h5>
+                    <h5 className="mb-0 text-center">
+                      Medical Record Information:
+                    </h5>
                   </div>
 
                   <div className="p-4">
@@ -115,52 +97,56 @@ const ProfileDoctor = () => {
                       <div className="row">
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Full Name</label>
+                            <label className="form-label">Visit Date</label>
                             <input
-                              name="fullName"
-                              type="text"
+                              name="visitDate"
+                              type="datetime-local"
                               className="form-control"
-                              value={fullName}
-                              onChange={(e) => setFullName(e.target.value)}
+                              value={visitDateTime}
+                              onChange={handleDateChange}
+                              required
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Phone Number</label>
+                            <label className="form-label">Diagnosis</label>
                             <input
-                              name="phoneNumber"
+                              name="diagnosis"
                               type="text"
                               className="form-control"
-                              value={phoneNumber}
-                              onChange={(e) => setPhoneNumber(e.target.value)}
+                              value={diagnosis}
+                              onChange={(e) => setDiagnosis(e.target.value)}
+                              required
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Speciality</label>
+                            <label className="form-label">Treatment</label>
                             <input
-                              name="speciality"
+                              name="treatment"
                               type="text"
                               className="form-control"
-                              value={speciality}
-                              onChange={(e) => setSpeciality(e.target.value)}
+                              value={treatment}
+                              onChange={(e) => setTreatment(e.target.value)}
+                              required
                             />
                           </div>
                         </div>
 
                         <div className="col-md-6">
                           <div className="mb-3">
-                            <label className="form-label">Password</label>
+                            <label className="form-label">Notes</label>
                             <input
-                              name="password"
-                              type="password"
+                              name="notes"
+                              type="text"
                               className="form-control"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              required
                             />
                           </div>
                         </div>
@@ -173,7 +159,7 @@ const ProfileDoctor = () => {
                             id="submit"
                             name="send"
                             className="btn btn-primary"
-                            value="Save Changes"
+                            value="Create Medical Record"
                           />
                         </div>
                       </div>
@@ -203,4 +189,9 @@ const ProfileDoctor = () => {
   );
 };
 
-export default ProfileDoctor;
+export default PetMedical;
+
+const getCurrentDateTime = () => {
+  const now = new Date();
+  return now.toISOString();
+};

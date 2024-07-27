@@ -6,6 +6,7 @@ import { BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import SidebarDoctor from "../../Components/Sidebar/SidebarDoctor";
+import { fetchWithAuth } from "../../utils/apiUtils";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -40,7 +41,9 @@ export default function DoctorSchedule() {
         doctorId: filters.doctorId,
       }).toString();
 
-      const response = await fetch(`${BOOKING_API.MASTER}?${queryParams}`);
+      const response = await fetchWithAuth(
+        `${BOOKING_API.MASTER}?${queryParams}`
+      );
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -159,6 +162,12 @@ export default function DoctorSchedule() {
                         >
                           Services
                         </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "220px" }}
+                        >
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -178,8 +187,22 @@ export default function DoctorSchedule() {
                           <td className="p-3">{booking.pet.name}</td>
                           <td className="p-3">{booking.pet.species}</td>
                           <td className="p-3">
-                            {booking.services.map(
-                              (service) => service.serviceName
+                            {booking.services
+                              .map((service) => service.serviceName)
+                              .join(", ")}
+                          </td>
+                          <td className="p-3">
+                            {isToday(booking.schedule.startTime) && (
+                              <button
+                                className="btn btn-primary"
+                                onClick={() =>
+                                  navigate(
+                                    `/doctor-medical/${booking.pet.petId}`
+                                  )
+                                }
+                              >
+                                Add Medical Record
+                              </button>
                             )}
                           </td>
                         </tr>
@@ -273,4 +296,14 @@ const formatTime = (dateString) => {
   const date = new Date(dateString);
   const hours = date.getHours();
   return ` ${hours}:00`;
+};
+
+const isToday = (dateString) => {
+  const today = new Date();
+  const date = new Date(dateString);
+  return (
+    today.getDate() === date.getDate() &&
+    today.getMonth() === date.getMonth() &&
+    today.getFullYear() === date.getFullYear()
+  );
 };
