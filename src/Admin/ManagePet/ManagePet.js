@@ -50,28 +50,6 @@ export default function ManagePet() {
     setCurrentPage(pageNumber);
   };
 
-  const handleDeletePet = async (petId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this pet?"
-    );
-    if (confirmDelete) {
-      try {
-        const response = await fetchWithAuth(`${PET_API.MASTER}/${petId}`, {
-          method: "DELETE",
-        });
-
-        if (response.ok) {
-          setPets(pets.filter((pet) => pet.petId !== petId));
-          toast.success("Pet deleted successfully!");
-        } else {
-          console.error("Failed to delete pet");
-        }
-      } catch (error) {
-        console.error("Error deleting pet:", error);
-      }
-    }
-  };
-
   return (
     <div className="page-wrapper doctris-theme toggled">
       <Sidebar />
@@ -92,15 +70,6 @@ export default function ManagePet() {
                     </li>
                   </ul>
                 </nav>
-              </div>
-              <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
-                <div className="justify-content-md-end">
-                  <div className="d-grid">
-                    <Link to="/add-pet" className="btn btn-primary">
-                      Add New Pet
-                    </Link>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -164,12 +133,6 @@ export default function ManagePet() {
                         >
                           Description
                         </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "150px" }}
-                        >
-                          Actions
-                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -197,20 +160,6 @@ export default function ManagePet() {
                           </td>
                           <td className="p-3">{pet.generic}</td>
                           <td className="p-3">{pet.description}</td>
-                          <td className="text-end p-3">
-                            <Link
-                              to={`/update-pet/${pet.petId}`}
-                              className="btn btn-icon btn-pills btn-soft-primary"
-                            >
-                              <i className="uil uil-eye"></i>
-                            </Link>
-                            <button
-                              className="btn btn-icon btn-pills btn-soft-danger ms-2"
-                              onClick={() => handleDeletePet(pet.petId)}
-                            >
-                              <i className="uil uil-times-circle"></i>
-                            </button>
-                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -14,7 +14,7 @@ export default function RegisterPet() {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [speciesOptions, setSpeciesOptions] = useState([]);
-  const [age, setAge] = useState("");
+  const [dob, setDOB] = useState("");
   const [gender, setGender] = useState("");
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
@@ -46,7 +46,7 @@ export default function RegisterPet() {
     console.log("Form submitted");
     e.preventDefault();
 
-    if (!name || !species || !age || !gender || !generic || !description) {
+    if (!name || !species || !dob || !gender || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
@@ -56,7 +56,7 @@ export default function RegisterPet() {
         name: name,
         species: species,
         customerId: user.customerId,
-        age: parseInt(age),
+        dob: new Date(dob).toISOString(), // Convert date to string
         gender: gender === "true", // Convert gender to boolean
         generic: generic,
         description: description,
@@ -238,11 +238,11 @@ export default function RegisterPet() {
                               Year of birth
                             </label>
                             <input
-                              type="number"
+                              type="date"
                               className="form-control"
                               id="pet-age"
-                              value={age}
-                              onChange={(e) => setAge(e.target.value)}
+                              value={dob}
+                              onChange={(e) => setDOB(e.target.value)}
                               required
                             />
                           </div>

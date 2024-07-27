@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { CUSTOMER_API, PET_API, BOOKING_API } from "../../apiEndpoint";
+import { BOOKING_API } from "../../apiEndpoint";
 import { useAuth } from "../../Components/Login/Authen";
 import TopHeader from "../../Components/Sidebar/TopHeader";
 import Sidebar from "../../Components/Sidebar/Sidebar";
@@ -12,10 +12,9 @@ export default function ManageAppointment() {
   const { user, logout } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [customers, setCustomers] = useState([]);
-  const [pets, setPets] = useState([]);
   const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
+
   const handleLogout = () => {
     logout();
     navigate("/signin"); // Redirect to sign-in page
@@ -32,27 +31,10 @@ export default function ManageAppointment() {
       const response = await fetchWithAuth(BOOKING_API.MASTER);
       const data = await response.json();
       if (Array.isArray(data)) {
-        const appointmentsWithData = await Promise.all(
-          data.map(async (appointment) => {
-            try {
-              const customerResponse = await fetchCustomer(
-                appointment.customerId
-              );
-              const petResponse = await fetchWithAuth(appointment.petId);
-
-              return {
-                ...appointment,
-                customerName: customerResponse.fullName,
-                customerPhoneNumber: customerResponse.phoneNumber,
-                petName: petResponse.data.name,
-              };
-            } catch (error) {
-              console.error("Error fetching details for appointment:", error);
-              return appointment; // Return original appointment object on error
-            }
-          })
-        );
-        setAppointments(appointmentsWithData);
+        const sortedAppointments = data.sort((a, b) => {
+          return new Date(b.bookingDate) - new Date(a.bookingDate);
+        });
+        setAppointments(sortedAppointments); // Set sorted appointments
       } else {
         console.error("Fetched data is not an array:", data);
         setAppointments([]);
@@ -61,35 +43,6 @@ export default function ManageAppointment() {
       console.error("Error fetching appointments: ", error);
       setAppointments([]);
       toast.error("Error fetching appointments");
-    }
-  };
-
-  const fetchPet = async (petId) => {
-    try {
-      const response = await fetchWithAuth(PET_API.SINGLE(petId));
-      if (!response.ok) {
-        throw new Error(`Failed to fetch pet with ID ${petId}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching pets:", error);
-      throw error;
-    }
-  };
-
-  const fetchCustomer = async (customerId) => {
-    try {
-      const response = await fetchWithAuth(CUSTOMER_API.SINGLE(customerId));
-      if (!response.ok) {
-        throw new Error(`Failed to fetch customer with ID ${customerId}`);
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching customers:", error);
-      // toast.error("Error fetching customers");
-      throw error;
     }
   };
 
@@ -189,18 +142,26 @@ export default function ManageAppointment() {
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
                         >
-                          Date
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          Note
+                          Booking Date
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "150px" }}
-                        ></th>
+                        >
+                          Doctor
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Room
+                        </th>
+                        <th
+                          className="border-bottom p-3"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Note
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -209,31 +170,19 @@ export default function ManageAppointment() {
                           <td className="p-3">
                             {indexOfFirstAppointment + index + 1}
                           </td>
-                          <td className="p-3">{appointment.customerName}</td>
                           <td className="p-3">
-                            {appointment.customerPhoneNumber}
+                            {appointment.customer.fullName}
                           </td>
-                          <td className="p-3">{appointment.petName}</td>
-                          <td className="p-3">{appointment.bookingDate}</td>
+                          <td className="p-3">
+                            {appointment.customer.phoneNumber}
+                          </td>
+                          <td className="p-3">{appointment.pet.name}</td>
+                          <td className="p-3">
+                            {formatDate(appointment.bookingDate)}
+                          </td>
+                          <td className="p-3">{appointment.doctor.fullName}</td>
+                          <td className="p-3">{appointment.schedule.roomNo}</td>
                           <td className="p-3">{appointment.note}</td>
-                          <td className="text-end p-3">
-                            <a
-                              href="#"
-                              className="btn btn-icon btn-pills btn-soft-success"
-                              data-bs-toggle="modal"
-                              data-bs-target="#acceptappointment"
-                            >
-                              <i className="uil uil-check-circle"></i>
-                            </a>
-                            <a
-                              href="#"
-                              className="btn btn-icon btn-pills btn-soft-danger"
-                              data-bs-toggle="modal"
-                              data-bs-target="#cancelappointment"
-                            >
-                              <i className="uil uil-times-circle"></i>
-                            </a>
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -328,3 +277,9 @@ export default function ManageAppointment() {
     </div>
   );
 }
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+};

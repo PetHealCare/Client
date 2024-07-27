@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useAuth } from "../../Components/Login/Authen";
 import "react-toastify/dist/ReactToastify.css";
-import { DOCTOR_API, PET_API } from "../../apiEndpoint";
+import { PET_API } from "../../apiEndpoint";
 import SidebarCustomer from "../../Components/Sidebar/SidebarCustomer";
 import { fetchWithAuth } from "../../utils/apiUtils";
 
@@ -12,7 +12,7 @@ export default function AddPet() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
-  const [age, setAge] = useState("");
+  const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [generic, setGeneric] = useState("");
   const [description, setDescription] = useState("");
@@ -21,10 +21,23 @@ export default function AddPet() {
     // Fetch species options if needed
   }, []);
 
+  const calculateAge = (dobString) => {
+    const dob = new Date(dobString);
+    const currentDate = new Date();
+    let age = currentDate.getFullYear() - dob.getFullYear();
+    const monthDifference = currentDate.getMonth() - dob.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !species || !age || !gender || !generic || !description) {
+    if (!name || !species || !dob || !gender || !generic || !description) {
       toast.error("Please fill out all fields");
       return;
     }
@@ -35,7 +48,8 @@ export default function AddPet() {
         species: species,
         status: true, // Assuming status is always true for new registrations
         customerId: user.customerId,
-        age: parseInt(age),
+        age: calculateAge(dob),
+        dob: dob,
         gender: gender === "true", // Convert gender to boolean
         generic: generic,
         description: description,
@@ -221,12 +235,12 @@ export default function AddPet() {
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">Year of birth</label>
+                      <label className="form-label">Date of Birth</label>
                       <input
-                        type="number"
+                        type="date"
                         className="form-control"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
                       />
                     </div>
                     <div className="col-md-6 mb-3">

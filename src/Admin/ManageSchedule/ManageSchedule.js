@@ -21,7 +21,7 @@ export default function ManageSchedule() {
     if (user) {
       fetchSchedules();
     }
-  }, [user, currentPage]); // Reload schedules when user or currentPage changes
+  }, [user, currentPage]);
 
   const fetchSchedules = async () => {
     try {
@@ -36,6 +36,12 @@ export default function ManageSchedule() {
           return { ...schedule, doctorName };
         });
         const schedulesWithDoctors = await Promise.all(doctorPromises);
+
+        // Sort schedules by startTime
+        schedulesWithDoctors.sort(
+          (a, b) => new Date(b.startTime) - new Date(a.startTime)
+        );
+
         setSchedules(schedulesWithDoctors);
         setTotalPages(data.totalPages);
       } else {
@@ -50,6 +56,7 @@ export default function ManageSchedule() {
       toast.error("Error fetching schedules");
     }
   };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -102,15 +109,6 @@ export default function ManageSchedule() {
                   </ul>
                 </nav>
               </div>
-              <div className="col-xl-3 col-lg-6 col-md-8 mt-4 mt-md-0">
-                <div className="justify-content-md-end">
-                  <div className="d-grid">
-                    <Link to="/add-schedule" className="btn btn-primary">
-                      Add Schedule
-                    </Link>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="row">
@@ -141,24 +139,14 @@ export default function ManageSchedule() {
                           className="border-bottom p-3"
                           style={{ minWidth: "220px" }}
                         >
-                          Start Time
+                          Date
                         </th>
                         <th
                           className="border-bottom p-3"
                           style={{ minWidth: "220px" }}
                         >
-                          End Time
+                          Time
                         </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "220px" }}
-                        >
-                          Slot Booking
-                        </th>
-                        <th
-                          className="border-bottom p-3"
-                          style={{ minWidth: "150px" }}
-                        ></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -169,9 +157,13 @@ export default function ManageSchedule() {
                           </td>
                           <td className="p-3">{schedule.doctorName}</td>
                           <td className="p-3">{schedule.roomNo}</td>
-                          <td className="p-3">{schedule.startTime}</td>
-                          <td className="p-3">{schedule.endTime}</td>
-                          <td className="p-3">{schedule.slotBooking}</td>
+                          <td className="p-3">
+                            {formatDate(schedule.startTime)}
+                          </td>
+                          <td className="p-3">
+                            {formatTime(schedule.startTime)} -{" "}
+                            {formatTime(schedule.endTime)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -252,3 +244,17 @@ export default function ManageSchedule() {
     </div>
   );
 }
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+};
+
+const formatTime = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  return `${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+};
